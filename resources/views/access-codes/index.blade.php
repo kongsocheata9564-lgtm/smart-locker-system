@@ -1,4 +1,4 @@
-@extends('layouts.defualt')
+@extends('layouts.app')
 
 @section('title', 'Access Codes | Smart Locker System')
 
