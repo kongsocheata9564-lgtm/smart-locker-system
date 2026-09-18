@@ -1,10 +1,9 @@
-@extends('layouts.defualt')
+@extends('layouts.app')
 
 @section('title', 'Maintenance | Smart Locker System')
-
+@section('page_title', 'Maintenance')
 @section('content')
-    <section class="grid gap-3">
-        <h1 class="text-2xl font-bold text-slate-950">Maintenance</h1>
-        <p class="text-slate-600">Track locker repairs, inspections, and service status.</p>
+   <section class="grid gap-4 bg-white rounded-xl p-4">
+      
     </section>
 @endsection
