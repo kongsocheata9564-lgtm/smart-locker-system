@@ -8,6 +8,6 @@ class LockerController extends Controller
 {
     public function index(): View
     {
-        return view('lockers.index');
+        return view('user.lockers.index');
     }
 }

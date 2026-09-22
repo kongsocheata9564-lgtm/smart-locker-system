@@ -22,7 +22,7 @@ class LockerSeeder extends Seeder
                             '%s-%03d',
                             str($location->name)->replace(' ', '')->substr(0, 3)->upper(),
                             $number
-                        ),
+                        ),  
                     ],
                     [
                         'size' => match ($number % 3) {

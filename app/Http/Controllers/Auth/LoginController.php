@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Response;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class LoginController extends Controller
@@ -13,13 +13,13 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-    public function store(): Response
+    public function store(): RedirectResponse
     {
-        return response()->noContent();
+        return redirect()->route('user.dashboard');
     }
 
-    public function destroy(): Response
+    public function destroy(): RedirectResponse
     {
-        return response()->noContent();
+        return redirect()->route('login');
     }
 }

@@ -8,6 +8,22 @@ class UserController extends Controller
 {
     public function index(): View
     {
-        return view('user.index');
+        if (request()->routeIs('staff.users.index')) {
+            return view('staff.users.index');
+        }
+        return view('user.profile.index');
     }
+
+    public function profile(): View
+    {
+        return view('profile');
+    }
+
+ 
+
+    public function userlist(): View
+    {
+        return view('staff.list.index');
+    }
+
 }
