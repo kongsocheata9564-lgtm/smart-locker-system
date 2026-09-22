@@ -8,6 +8,6 @@ class MaintenanceController extends Controller
 {
     public function index(): View
     {
-        return view('maintenance.index');
+        return view('user.maintenance.index');
     }
 }
