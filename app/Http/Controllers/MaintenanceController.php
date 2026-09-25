@@ -10,4 +10,8 @@ class MaintenanceController extends Controller
     {
         return view('user.maintenance.index');
     }
+    public function staff(): View
+    {
+        return view('staff.maintenance.index');
+    }
 }

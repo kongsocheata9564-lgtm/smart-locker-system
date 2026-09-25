@@ -10,4 +10,9 @@ class UsageHistoryController extends Controller
     {
         return view('user.usage-history.index');
     }
+
+    public function staff(): View
+    {
+        return view('staff.usage-history.index');
+    }
 }

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.user')
 
 @section('title', 'Profile | Smart Locker System')
 @section('page_title', 'Profile')
