@@ -37,7 +37,7 @@ Route::prefix('staff')->name('staff.')->group(function () {
     Route::post('/assignments/{assignment}/release', [ReleaseController::class, 'store'])->name('assignments.release');
     Route::get('/access-codes', [AccessCodeController::class, 'index'])->name('access-codes.index');
     Route::get('/usage-history', [UsageHistoryController::class, 'staff'])->name('usage-history.index');
-    Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
+    Route::get('/maintenance', [MaintenanceController::class, 'staff'])->name('maintenance.index');
     Route::get('/list', [UserController::class, 'userlist'])->name('list.index');
 });
 
