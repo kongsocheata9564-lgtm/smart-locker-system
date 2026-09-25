@@ -26,10 +26,12 @@ Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 Route::get('/profile', [UserController::class, 'index'])->name('profile');
 Route::get('/users', [UserController::class, 'index'])->name('users.index');
 Route::get('/locations', [LocationController::class, 'index'])->name('locations.index');
-Route::get('/lockers', [LockerController::class, 'index'])->name('lockers.index');
+Route::resource('lockers', LockerController::class)->except(['show']);
 Route::get('/assignments', [AssignmentController::class, 'index'])->name('assignments.index');
 Route::get('/access-codes', [AccessCodeController::class, 'index'])->name('access-codes.index');
 Route::post('/assignments/{assignment}/release', [ReleaseController::class, 'store'])->name('assignments.release');
 Route::get('/usage-history', [UsageHistoryController::class, 'index'])->name('usage-history.index');
 Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
 Route::get('/staff/dashboard', [StaffDashboardController::class, 'index'])->name('staff.dashboard');
+
+
