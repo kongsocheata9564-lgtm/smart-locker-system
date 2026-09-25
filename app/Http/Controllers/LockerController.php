@@ -10,4 +10,9 @@ class LockerController extends Controller
     {
         return view('user.lockers.index');
     }
+
+    public function staff(): View
+    {
+        return view('staff.lockers.index');
+    }
 }
