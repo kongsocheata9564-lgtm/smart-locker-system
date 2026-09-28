@@ -7,12 +7,37 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
-#[Fillable(['name', 'type', 'address', 'description', 'status'])]
+#[Fillable([
+    'name', 'slug', 'category', 'address',
+    'price_per_hour', 'total_lockers', 'free_lockers', 'rating', 'image',
+])]
 class Location extends Model
 {
     /** @use HasFactory<LocationFactory> */
     use HasFactory;
+
+    public const CATEGORIES = [
+        'Shopping Mall',
+        'Library',
+        'Sports Center',
+        'Building',
+    ];
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    protected static function booted(): void
+    {
+        static::saving(function (Location $location) {
+            if (empty($location->slug)) {
+                $location->slug = Str::slug($location->name);
+            }
+        });
+    }
 
     public function lockers(): HasMany
     {

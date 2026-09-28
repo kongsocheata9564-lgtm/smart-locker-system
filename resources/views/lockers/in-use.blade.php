@@ -26,8 +26,7 @@
            class="text-center bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-3 rounded-xl transition">
             View Locker Details
         </a>
-        {{-- TODO: point at your dashboard route once built --}}
-        <a href="#" class="text-center text-sm font-medium text-gray-500 hover:text-gray-700 py-2">
+        <a href="{{ route(auth()->user()->dashboardRoute()) }}" class="text-center text-sm font-medium text-gray-500 hover:text-gray-700 py-2">
             Go to Dashboard
         </a>
 
