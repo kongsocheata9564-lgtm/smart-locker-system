@@ -13,10 +13,25 @@ class LocationController extends Controller
 
     public function place() : View
     {
-        return view('location');
+        return view('locations.index');
     }
     public function location() : View
     {
         return view('user.locations.index');
+    }
+
+
+
+
+    //daracook
+     public function select(): View
+    {
+        return view('locations.select');
+    }
+
+    public function show(): View
+    {
+        
+        return view('locations.show');
     }
 }

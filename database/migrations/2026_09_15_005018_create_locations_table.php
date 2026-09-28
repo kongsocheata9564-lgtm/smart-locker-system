@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('locations', function (Blueprint $table) {
+            Schema::create('locations', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('address');
             $table->string('type');
             $table->string('status')->default('active');
-            $table->string('map')->nullable();
+            $table->text('map')->nullable();
             $table->timestamps();
         });
     }

@@ -14,7 +14,7 @@
 <body>
    
 @php
-    $isUserRoute = request()->routeIs('user.dashboard') 
+    $isUserRoute = request()->routeIs('user.index') 
         || request()->routeIs('locations.*') 
         || request()->routeIs('lockers.*') 
         || request()->routeIs('assignments.*') 
