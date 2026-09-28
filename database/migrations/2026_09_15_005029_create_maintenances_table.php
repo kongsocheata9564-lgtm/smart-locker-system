@@ -11,20 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('maintenances', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('locker_id')->constrained('lockers')->onDelete('cascade');
-            $table->string('reason');
-            $table->unsignedBigInteger('reportByUser_id');
-            $table->foreign('reportByUser_id')->references('id')->on('users')->onDelete('cascade');
-            $table->unsignedBigInteger('sovleByUser_id')->nullable();
-            $table->foreign('sovleByUser_id')->references('id')->on('users')->nullOnDelete();
-            $table->string('status')->default('pending');
-            $table->timestamp('report_at')->nullable();
-            $table->timestamp('solve_at')->nullable();
-            $table->timestamps();
-
-        });
+       Schema::create('maintenances', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('locker_id')->constrained()->cascadeOnDelete();
+    $table->string('reason');
+    $table->foreignId('reported_by_user_id')->constrained('users');
+    $table->foreignId('solved_by_user_id')->nullable()->constrained('users');
+    $table->string('status')->default('pending');
+    $table->timestamp('reported_at')->useCurrent();
+    $table->timestamp('solved_at')->nullable();
+    $table->timestamps();
+});
     }
 
     /**

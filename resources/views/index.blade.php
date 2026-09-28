@@ -92,7 +92,7 @@
 
 <!-- CTA -->
 <section class="px-5 pt-5 pb-7">
-    <a href="{{ route('staff.locations.index') }}"
+    <a href="{{ route('location') }}"
        class="w-full flex items-center justify-center gap-2.5 rounded-full px-6 py-4 text-white font-bold text-[15px] no-underline shadow-lg transition hover:-translate-y-0.5"
        style="background: linear-gradient(135deg, #123a6b, #0d2a52);">
         Get Started
