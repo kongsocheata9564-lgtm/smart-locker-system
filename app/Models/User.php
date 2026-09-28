@@ -46,12 +46,13 @@ class User extends Authenticatable
         ];
     }
 
-public function dashboardRoute(): string
-{
-    return $this->isStaff() ? 'staff.index' : 'user.index';
-}
-public function isStaff(): bool
-{
-    return in_array($this->role, ['staff', 'admin'], true);
-}
+    public function dashboardRoute(): string
+    {
+        return $this->isStaff() ? 'staff.index' : 'user.index';
+    }
+
+    public function isStaff(): bool
+    {
+        return in_array($this->role, ['staff', 'admin'], true);
+    }
 }

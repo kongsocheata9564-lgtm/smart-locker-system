@@ -18,20 +18,26 @@
                 <p class="text-sm text-gray-500">Your Locker Code</p>
             </div>
 
-            <p class="text-3xl font-bold text-blue-900 tracking-wider mb-4">X6F3A9</p>
+            @if ($code)
+                <p class="text-3xl font-bold text-blue-900 tracking-wider mb-4">{{ $code }}</p>
+            @else
+                <p class="text-sm text-orange-600 mb-4">
+                    Your code is no longer shown on this device. Please ask staff for help if you forgot it.
+                </p>
+            @endif
 
             <div class="divide-y divide-gray-50">
                 <div class="flex justify-between py-2.5">
                     <span class="text-sm text-gray-400">Locker ID</span>
-                    <span class="text-sm font-medium text-gray-700">L-001</span>
+                    <span class="text-sm font-medium text-gray-700">{{ $locker->name }}</span>
                 </div>
                 <div class="flex justify-between py-2.5">
                     <span class="text-sm text-gray-400">Location</span>
-                    <span class="text-sm font-medium text-gray-700">ABC Mall</span>
+                    <span class="text-sm font-medium text-gray-700">{{ $locker->location->name }}</span>
                 </div>
                 <div class="flex justify-between py-2.5">
                     <span class="text-sm text-gray-400">Type</span>
-                    <span class="text-sm font-medium text-gray-700">Standard (Large)</span>
+                    <span class="text-sm font-medium text-gray-700">{{ ucfirst($locker->type) }}</span>
                 </div>
             </div>
         </div>
@@ -46,9 +52,9 @@
 
         <!-- Action -->
         <a href="{{ route('locker.close', $locker) }}"
-   class="text-center bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-3 rounded-xl transition">
-    OK
-</a>
+           class="text-center bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-3 rounded-xl transition">
+            OK
+        </a>
 
     </section>
 @endsection

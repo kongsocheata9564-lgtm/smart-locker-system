@@ -27,17 +27,17 @@
                 </div>
                 <div>
                     <p class="text-xs text-gray-400">Locker ID</p>
-                    <p class="font-semibold text-gray-800">L-001</p>
+                    <p class="font-semibold text-gray-800">{{ $locker->name }}</p>
                 </div>
             </div>
             <div class="divide-y divide-gray-50">
                 <div class="flex justify-between py-2.5">
                     <span class="text-sm text-gray-400">Code</span>
-                    <span class="text-sm font-medium text-gray-700">X6F3A9</span>
+                    <span class="text-sm font-medium text-gray-700">{{ $code ?? 'Shown on the next page' }}</span>
                 </div>
                 <div class="flex justify-between py-2.5">
                     <span class="text-sm text-gray-400">Location</span>
-                    <span class="text-sm font-medium text-gray-700">ABC Mall</span>
+                    <span class="text-sm font-medium text-gray-700">{{ $locker->location->name }}</span>
                 </div>
             </div>
         </div>
@@ -47,7 +47,7 @@
            class="text-center bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium py-3 rounded-xl transition">
             View Locker Details
         </a>
-        <a href="#" class="text-center text-sm font-medium text-gray-500 hover:text-gray-700 py-2">
+        <a href="{{ route(auth()->user()->dashboardRoute()) }}" class="text-center text-sm font-medium text-gray-500 hover:text-gray-700 py-2">
             Go to Dashboard
         </a>
 

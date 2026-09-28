@@ -4,10 +4,14 @@
 @section('page_title', 'Dashboard')
 
 @section('content')
+    @php
+        $hour = now()->hour;
+        $greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening');
+    @endphp
     <section class="grid gap-4">
 
         <div>
-            <h2 class="text-xl font-bold text-gray-800">Good morning, Somnang Dara</h2>
+            <h2 class="text-xl font-bold text-gray-800">{{ $greeting }}, {{ auth()->user()->name }}</h2>
             <p class="text-sm text-gray-400">Find and manage your lockers easily.</p>
         </div>
 
