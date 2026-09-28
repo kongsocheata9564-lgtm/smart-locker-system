@@ -3,17 +3,24 @@
 namespace App\Models;
 
 use Database\Factories\LockerFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['locker_name', 'location_id', 'password', 'user_id', 'status', 'type'])]
 class Locker extends Model
 {
     /** @use HasFactory<LockerFactory> */
     use HasFactory;
+
+    protected $fillable = [
+        'locker_name',
+        'location_id',
+        'password',
+        'user_id',
+        'status',
+        'type',
+    ];
 
     protected $hidden = ['password'];
 
