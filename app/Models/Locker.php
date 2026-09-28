@@ -9,15 +9,29 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['location_id', 'locker_number', 'size', 'status', 'description'])]
+#[Fillable(['locker_name', 'location_id', 'password', 'user_id', 'status', 'type'])]
 class Locker extends Model
 {
     /** @use HasFactory<LockerFactory> */
     use HasFactory;
 
+    protected $hidden = ['password'];
+
+    protected function casts(): array
+    {
+        return [
+            'password' => 'hashed',
+        ];
+    }
+
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function assignments(): HasMany
