@@ -8,6 +8,6 @@ class AccessCodeController extends Controller
 {
     public function index(): View
     {
-        return view('access-codes.index');
+        return view('user.access-codes.index');
     }
 }

@@ -8,6 +8,6 @@ class AssignmentController extends Controller
 {
     public function index(): View
     {
-        return view('assignments.index');
+        return view('user.assignments.index');
     }
 }

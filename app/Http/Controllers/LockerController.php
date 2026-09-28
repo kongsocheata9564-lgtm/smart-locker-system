@@ -15,27 +15,7 @@ class LockerController extends Controller
 
     public function index(Request $request): View
     {
-        $lockers = Locker::with('location')
-            ->when($request->filled('search'), function ($query) use ($request) {
-                $query->where('locker_name', 'like', '%' . $request->search . '%');
-            })
-            ->when($request->filled('location_id'), function ($query) use ($request) {
-                $query->where('location_id', $request->location_id);
-            })
-            ->when($request->filled('status'), function ($query) use ($request) {
-                $query->where('status', $request->status);
-            })
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
-
-        $locations = Location::orderBy('name')->get();
-
-        return view('locker.index', [ // CHANGED
-            'lockers' => $lockers,
-            'locations' => $locations,
-            'statuses' => self::STATUSES,
-        ]);
+        return view('user.lockers.index');
     }
 
     public function create(): View

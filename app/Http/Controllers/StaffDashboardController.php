@@ -8,6 +8,6 @@ class StaffDashboardController extends Controller
 {
     public function index(): View
     {
-        return view('staff.dashboard');
+        return view('staff.dashboard.index');
     }
 }

@@ -39,8 +39,8 @@
         @include('partials.sidebar')
     @endif
 
-    <main class="ml-[250px] flex-1 min-h-screen bg-gray-50">
-        @include('partials.header')
+    <main class="ml-[250px] flex-1 px-2 min-h-screen bg-gray-50">
+        
 
         <div class="p-3">
             @yield('content')

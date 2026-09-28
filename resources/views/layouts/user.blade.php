@@ -32,11 +32,11 @@
 @if(!$isAuthRoute)
 <div class="flex min-h-screen">
     @if($isUserRoute)
-        @include('user.partials.sidebar')
+        @include('user.partials.usersidebar')
     @elseif($isStaffRoute)
-        @include('.partials.sidebar')
+        @include('.partials.usersidebar')
     @else
-        @include('partials.sidebar')
+        @include('partials.usersidebar')
     @endif
 
     <main class="ml-[250px] flex-1 min-h-screen bg-gray-50">

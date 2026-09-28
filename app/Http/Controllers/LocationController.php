@@ -8,6 +8,15 @@ class LocationController extends Controller
 {
     public function index(): View
     {
-        return view('locations.index');
+        return view('staff.locations.index');
+    }
+
+    public function place() : View
+    {
+        return view('location');
+    }
+    public function location() : View
+    {
+        return view('user.locations.index');
     }
 }

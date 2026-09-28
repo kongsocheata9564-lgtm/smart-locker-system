@@ -8,6 +8,11 @@ class UsageHistoryController extends Controller
 {
     public function index(): View
     {
-        return view('usage-history.index');
+        return view('user.usage-history.index');
+    }
+
+    public function staff(): View
+    {
+        return view('staff.usage-history.index');
     }
 }
