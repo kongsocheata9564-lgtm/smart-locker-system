@@ -6,26 +6,19 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        Schema::create('lockers', function (Blueprint $table) {
-            $table->id();
-            $table->string('locker_name');
-            $table->foreignId('location_id')->constrained('locations')->cascadeOnDelete();
-            $table->string('password');
-            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->string('status')->default('available');
-            $table->string('type');
-            $table->timestamps();
-        });
+  Schema::create('lockers', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('location_id')->constrained('locations')->cascadeOnDelete();
+    $table->string('locker_name');
+    $table->string('size');
+    $table->string('status')->default('available');
+    $table->text('description')->nullable();
+    $table->timestamps();
+});
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('lockers');

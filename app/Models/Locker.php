@@ -2,36 +2,25 @@
 
 namespace App\Models;
 
-use Database\Factories\LockerFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['location_id', 'locker_number', 'size', 'status', 'description'])]
 class Locker extends Model
 {
-    /** @use HasFactory<LockerFactory> */
-    use HasFactory;
-
+protected $fillable = ['locker_name', 'location_id', 'size', 'status', 'description'];
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
     }
 
-    public function assignments(): HasMany
+    public function user(): BelongsTo
     {
-        return $this->hasMany(Assignment::class);
+        return $this->belongsTo(User::class);
     }
 
-    public function usageHistories(): HasMany
+    public function usages(): HasMany
     {
-        return $this->hasMany(UsageHistory::class);
-    }
-
-    public function maintenances(): HasMany
-    {
-        return $this->hasMany(Maintenance::class);
+        return $this->hasMany(LockerUsage::class);
     }
 }

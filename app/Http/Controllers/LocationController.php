@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Location;
 use Illuminate\View\View;
 
 class LocationController extends Controller
@@ -15,8 +16,11 @@ class LocationController extends Controller
     {
         return view('location');
     }
+
     public function location() : View
     {
-        return view('user.locations.index');
+        $locations = Location::where('status', 'active')->get();
+
+        return view('user.locations.index', compact('locations'));
     }
 }

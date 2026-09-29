@@ -22,14 +22,14 @@ class MaintenanceRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'locker_id' => ['required', 'exists:lockers,id'],
-            'reported_by' => ['required', 'exists:users,id'],
-            'reason' => ['required', 'string', 'max:255'],
-            'status' => ['required', 'in:pending,in_progress,completed'],
-            'started_at' => ['nullable', 'date'],
-            'completed_at' => ['nullable', 'date', 'after_or_equal:started_at'],
-            'notes' => ['nullable', 'string'],
-        ];
+       return [
+    'locker_id'       => ['required', 'exists:lockers,id'],
+    'reportByUser_id' => ['required', 'exists:users,id'],
+    'sovleByUser_id'  => ['nullable', 'exists:users,id'],
+    'reason'          => ['required', 'string', 'max:255'],
+    'status'          => ['required', 'in:pending,in_progress,completed'],
+    'report_at'       => ['nullable', 'date'],
+    'solve_at'        => ['nullable', 'date', 'after_or_equal:report_at'],
+];
     }
 }

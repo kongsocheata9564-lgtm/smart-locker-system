@@ -2,17 +2,15 @@
 
 namespace App\Models;
 
-use Database\Factories\LocationFactory;
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'type', 'address', 'description', 'status'])]
 class Location extends Model
 {
-    /** @use HasFactory<LocationFactory> */
     use HasFactory;
+
+    protected $fillable = ['name', 'address', 'type', 'status', 'map'];
 
     public function lockers(): HasMany
     {
