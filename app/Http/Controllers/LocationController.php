@@ -33,13 +33,12 @@ class LocationController extends Controller
         return view('staff.locations.index', compact('locations'));
     }
 
-    // Staff: show the create form
+    
     public function create(): View
     {
         return view('staff.locations.create');
     }
 
-    // Staff: save a new location
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([

@@ -1,5 +1,5 @@
 
-@extends('layouts.app')
+@extends('layouts.user')
 
 @section('title', 'Locations | Smart Locker System')
 @section('page_title', 'Locations')
