@@ -2,38 +2,49 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+
 
 class UserController extends Controller
 {
-    public function index(): View
+    // GET /profiles (any logged-in user)
+    public function profile(Request $request): View
     {
-        if (request()->routeIs('staff.users.index')) {
-            return view('user.users.index');
-            
-        }
-        return view('user.profile.index');
-    }
-    public function staff(): View
-    {
-        if (request()->routeIs('staff.users.index')) {
-            return view('staff.users.index');
-            
-        }
-        return view('staff.profile.index');
+        return view('profile', ['user' => $request->user()]);
     }
 
-
-    public function profile(): View
+    // GET /staff/profile
+    public function staff(Request $request): View
     {
-        return view('profile');
+        return view('staff.profile.index', ['user' => $request->user()]);
     }
 
- 
-
-    public function userlist(): View
+    // GET /user/profile
+    public function index(Request $request): View
     {
-        return view('staff.list.index');
+        return view('user.profile.index', ['user' => $request->user()]);
     }
 
+    // GET /staff/list and /user/list
+    public function userlist(Request $request): View|RedirectResponse
+{
+    /** @var \App\Models\User $authUser */
+    $authUser = $request->user();
+
+    // Admins manage roles on their own page
+    if ($authUser->role === 'admin') {
+        return redirect()->route('admin.users.index');
+    }
+
+    $users = User::latest()->paginate(10);
+
+    $view = $authUser->isStaff()
+        ? 'staff.list.index'
+        : 'user.list.index';
+
+    return view($view, compact('users'));
+}
 }

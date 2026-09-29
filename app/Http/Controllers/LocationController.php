@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Location;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class LocationController extends Controller
@@ -132,4 +134,3 @@ class LocationController extends Controller
         return view('user.locations.index', compact('locations'));
     }
 }
-

@@ -19,11 +19,10 @@ class LockerFactory extends Factory
     public function definition(): array
     {
         return [
+            'name' => fake()->unique()->bothify('L-###'),
             'location_id' => Location::factory(),
-            'locker_number' => fake()->unique()->bothify('L-###'),
-            'size' => fake()->randomElement(['small', 'medium', 'large']),
+            'type' => fake()->randomElement(['small', 'medium', 'large']),
             'status' => 'available',
-            'description' => fake()->sentence(),
         ];
     }
 }

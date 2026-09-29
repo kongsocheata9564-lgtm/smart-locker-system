@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
@@ -14,15 +13,15 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         $users = [
-            ['name' => 'System Admin', 'email' => 'admin@example.com', 'role' => 'admin'],
-            ['name' => 'Locker Staff', 'email' => 'staff@example.com', 'role' => 'staff'],
-            ['name' => 'Normal User', 'email' => 'user@example.com', 'role' => 'user'],
+            ['name' => 'Admin', 'email' => 'admin@pse.ngo', 'role' => 'admin'],
+            ['name' => 'Staff', 'email' => 'staff@gmail.com', 'role' => 'staff'],
+            ['name' => 'User', 'email' => 'user@gmail.com', 'role' => 'user'],
         ];
 
         foreach ($users as $user) {
             User::updateOrCreate(
                 ['email' => $user['email']],
-                [...$user, 'password' => Hash::make('password')]
+                [...$user, 'password' => 'password', 'status' => 'active']
             );
         }
     }
