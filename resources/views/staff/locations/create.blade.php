@@ -8,6 +8,47 @@
 
 @php
     $prefix = request()->routeIs('staff.*') ? 'staff' : 'user';
+
+    $popularPlaces = [
+        'Phnom Penh' => [
+            'Royal Palace',
+            'Silver Pagoda',
+            'National Museum of Cambodia',
+            'Wat Phnom',
+            'Independence Monument',
+            'Central Market (Phsar Thmei)',
+            'Russian Market (Toul Tom Poung)',
+            'Riverside (Sisowath Quay)',
+            'Koh Pich (Diamond Island)',
+            'Olympic Stadium',
+            'Aeon Mall Phnom Penh',
+            'Aeon Mall Sen Sok City',
+            'Aeon Mall Mean Chey',
+            'Sorya Center Point',
+            'Tuol Sleng Genocide Museum',
+            'Choeung Ek Killing Fields',
+        ],
+        'Siem Reap' => [
+            'Angkor Wat',
+            'Bayon Temple',
+            'Ta Prohm',
+            'Angkor Thom',
+            'Banteay Srei',
+            'Phnom Kulen',
+            'Pub Street',
+            'Angkor Night Market',
+            'Siem Reap Airport',
+        ],
+        'Other Provinces' => [
+            'Ochheuteal Beach (Sihanoukville)',
+            'Koh Rong Island',
+            'Bokor National Park (Kampot)',
+            'Kep Crab Market',
+            'Bamboo Train (Battambang)',
+            'Preah Vihear Temple',
+            'Kampong Cham Bridge',
+        ],
+    ];
 @endphp
 
 <div class="grid gap-5 max-w-2xl">
@@ -61,7 +102,7 @@
 
             @csrf
 
-            {{-- Location Name --}}
+            {{-- Location Name (dropdown) --}}
             <div class="grid gap-1.5">
 
                 <label
@@ -74,7 +115,7 @@
                 <div class="relative">
 
                     <svg
-                        class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
+                        class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
                         fill="none"
                         stroke="currentColor"
                         stroke-width="2"
@@ -93,14 +134,27 @@
                         />
                     </svg>
 
-                    <input
-                        type="text"
+                    <select
                         id="name"
                         name="name"
-                        value="{{ old('name') }}"
-                        placeholder="Central Library"
-                        class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('name') border-red-300 @enderror"
+                        class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('name') border-red-300 @enderror"
                     >
+
+                        <option value="">
+                            Select a popular place
+                        </option>
+
+                        @foreach ($popularPlaces as $group => $places)
+                            <optgroup label="{{ $group }}">
+                                @foreach ($places as $place)
+                                    <option value="{{ $place }}" @selected(old('name') === $place)>
+                                        {{ $place }}
+                                    </option>
+                                @endforeach
+                            </optgroup>
+                        @endforeach
+
+                    </select>
 
                 </div>
 

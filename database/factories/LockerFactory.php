@@ -21,6 +21,7 @@ class LockerFactory extends Factory
         return [
             'name' => fake()->unique()->bothify('L-###'),
             'location_id' => Location::factory(),
+            'price_per_hour' => fake()->randomFloat(2, 0, 10),
             'type' => fake()->randomElement(['small', 'medium', 'large']),
             'status' => 'available',
         ];

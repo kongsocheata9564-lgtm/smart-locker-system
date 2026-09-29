@@ -59,25 +59,48 @@
             </div>
 
             {{-- Location --}}
-            <div class="grid gap-1.5">
-                <label for="location_id" class="text-sm font-medium text-gray-700">Location</label>
-                <div class="relative">
-                    <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
-                    </svg>
-                    <select id="location_id" name="location_id"
-                            class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 @error('location_id') border-red-300 @enderror">
-                        <option value="">Select location</option>
-                        @foreach ($locations as $location)
-                            <option value="{{ $location->id }}" @selected(old('location_id') == $location->id)>
-                                {{ $location->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                @error('location_id') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
-            </div>
+            {{-- Location --}}
+<div class="grid gap-1.5">
+    <label for="location_id" class="text-sm font-medium text-gray-700">Location</label>
+
+    <div class="relative">
+        <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"
+             fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
+        </svg>
+
+        <select id="location_id" name="location_id"
+                class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 @error('location_id') border-red-300 @enderror">
+
+            <option value="">Select location</option>
+
+            @foreach ($locations as $location)
+                <option
+                    value="{{ $location->id }}"
+                    @selected(old('location_id') == $location->id)
+                >
+                    {{ $location->name }}
+                </option>
+            @endforeach
+
+        </select>
+    </div>
+
+    @error('location_id')
+        <p class="text-xs text-red-600">{{ $message }}</p>
+    @enderror
+
+</div>
+
+<div class="grid gap-1.5">
+    <label for="price_per_hour" class="text-sm font-medium text-gray-700">Price per hour</label>
+    <input type="number" id="price_per_hour" name="price_per_hour" value="{{ old('price_per_hour') }}" min="0" step="0.01" placeholder="0.00"
+           class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('price_per_hour') border-red-300 @enderror">
+    @error('price_per_hour') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+</div>
 
             {{-- Type + Status --}}
             <div class="grid gap-5 md:grid-cols-2">

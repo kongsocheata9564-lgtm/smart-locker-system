@@ -48,7 +48,7 @@
             </div>
             <div class="flex justify-between py-2.5">
                 <span class="text-sm text-gray-400">Price</span>
-                <span class="text-sm font-medium text-gray-700">${{ number_format($locker->location->price_per_hour, 2) }}/hr</span>
+                <span class="text-sm font-medium text-gray-700">${{ number_format((float) $locker->price_per_hour, 2) }}/hr</span>
             </div>
         </div>
 

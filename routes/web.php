@@ -1,11 +1,12 @@
 <?php
-use App\Http\Controllers\DashboardController;
+
 use App\Http\Controllers\AccessCodeController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\Admin\UserRoleController;
 use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\LockerController;
 use App\Http\Controllers\MaintenanceController;
@@ -18,16 +19,6 @@ use App\Models\Locker;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
-
-
-Route::get('/', function () { return view('index'); })->name('home');                        // [DONE] landing page
-Route::get('/locations', [LocationController::class, 'place'])->name('location');            // [DONE]
-Route::get('/profiles', [UserController::class, 'profile'])->name('profile');                // [FRIEND]
-Route::get('/activity', [ActivityController::class, 'place'])->name('activity');             // [DONE]
-
-
-
-
 // ---------- Public (anyone can open these, no login needed) ----------
 Route::get('/', function () {
     return view('index', [
@@ -37,73 +28,11 @@ Route::get('/', function () {
         'locationCount' => Location::count(),
     ]);
 })->name('home');
+
 Route::get('/select-location', [LocationController::class, 'select'])->name('location.select');
 Route::get('/locations', [LocationController::class, 'place'])->name('location');
 Route::get('/locations/{location:slug}', [LocationController::class, 'show'])->name('location.show');
-Route::get('/profiles', [UserController::class, 'profile'])->name('profile');
-Route::get('/activity',  [ActivityController::class, 'place'])->name('activity');
-Route::get('/register', [RegisterController::class, 'create'])->name('register');
-Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
-Route::get('/login', [LoginController::class, 'create'])->name('login');
-Route::post('/login', [LoginController::class, 'store'])->name('login.store');
-Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
-
-// =====================================================================
-// STAFF (desktop layout: layouts.app / layouts.app1)
-// =====================================================================
-Route::prefix('staff')->name('staff.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('staff.dashboard.index');
-    })->name('index');
-    Route::get('/profile', [UserController::class, 'staff'])->name('profile');
-    Route::get('/locations', [LocationController::class, 'index'])->name('locations.index');
-    // Route::get('/lockers', [LockerController::class, 'staff'])->name('lockers.index');
-    Route::get('/assignments', [AssignmentController::class, 'index'])->name('assignments.index');
-    Route::post('/assignments/{assignment}/release', [ReleaseController::class, 'store'])->name('assignments.release');
-    Route::get('/access-codes', [AccessCodeController::class, 'index'])->name('access-codes.index');
-    Route::get('/usage-history', [UsageHistoryController::class, 'staff'])->name('usage-history.index');
-    // Route::get('/maintenance', [MaintenanceController::class, 'staff'])->name('maintenance.index');
-    Route::get('/list', [UserController::class, 'userlist'])->name('list.index');
-
-    // cheata route lockers
-    Route::get('/lockers', [LockerController::class, 'staff'])->name('lockers.index');
-    Route::get('/lockers/create', [LockerController::class, 'create'])->name('lockers.create');
-    Route::post('/lockers', [LockerController::class, 'store'])->name('lockers.store');
-    Route::get('/lockers/{locker}/edit', [LockerController::class, 'edit'])->name('lockers.edit');
-    Route::put('/lockers/{locker}', [LockerController::class, 'update'])->name('lockers.update');
-    Route::delete('/lockers/{locker}', [LockerController::class, 'destroy'])->name('lockers.destroy');
-    // cheata end route lockers
-
-
-
-    // cheata route locations
-    Route::get('/locations', [LocationController::class, 'index'])
-        ->name('locations.index');
-    Route::get('/locations/create', [LocationController::class, 'create'])
-        ->name('locations.create');
-    Route::post('/locations', [LocationController::class, 'store'])
-        ->name('locations.store');
-    Route::get('/locations/{location}/edit', [LocationController::class, 'edit'])
-        ->name('locations.edit');
-    Route::put('/locations/{location}', [LocationController::class, 'update'])
-        ->name('locations.update');
-    Route::delete('/locations/{location}', [LocationController::class, 'destroy'])
-        ->name('locations.destroy');
-    Route::get('/locations/{location:slug}', [LocationController::class, 'show'])->name('location.show');
-    // cheata end route locations
-
-
-
-
-    //cheata route maintenance
-    Route::get('/maintenance', [MaintenanceController::class, 'staff'])->name('maintenance.index');
-    Route::get('/maintenance/create', [MaintenanceController::class, 'create'])->name('maintenance.create');
-    Route::post('/maintenance', [MaintenanceController::class, 'storeStaff'])->name('maintenance.store');
-    Route::get('/maintenance/{maintenance}/edit', [MaintenanceController::class, 'edit'])->name('maintenance.edit');
-    Route::put('/maintenance/{maintenance}', [MaintenanceController::class, 'update'])->name('maintenance.update');
-    Route::delete('/maintenance/{maintenance}', [MaintenanceController::class, 'destroy'])->name('maintenance.destroy');
-    //cheata end route maintenance
-});
+Route::get('/profiles', [UserController::class, 'profile']);   // [FRIEND]
 
 // ---------- Guest only (login / register pages) ----------
 Route::middleware('guest')->group(function () {
@@ -142,6 +71,7 @@ Route::middleware('auth')->group(function () {
     });
 
     // ---------- STAFF (role: staff or admin) ----------
+    // Every staff route lives in this ONE group, so all of them need login + role.
     Route::middleware('role:staff,admin')->prefix('staff')->name('staff.')->group(function () {
         Route::get('/dashboard', function () {
             $byStatus = Locker::selectRaw('status, count(*) as total')
@@ -186,23 +116,44 @@ Route::middleware('auth')->group(function () {
         })->name('index');
 
         Route::get('/profile', [UserController::class, 'staff'])->name('profile');
+        Route::get('/list', [UserController::class, 'userlist'])->name('list.index');
+
+        // locations (keep /create BEFORE the {location:slug} route)
+        Route::get('/locations', [LocationController::class, 'index'])->name('locations.index');
         Route::get('/locations/create', [LocationController::class, 'create'])->name('locations.create');
         Route::post('/locations', [LocationController::class, 'store'])->name('locations.store');
-        Route::get('/locations', [LocationController::class, 'index'])->name('locations.index');
+        Route::get('/locations/{location}/edit', [LocationController::class, 'edit'])->name('locations.edit');
+        Route::put('/locations/{location}', [LocationController::class, 'update'])->name('locations.update');
+        Route::delete('/locations/{location}', [LocationController::class, 'destroy'])->name('locations.destroy');
+        Route::get('/locations/{location:slug}', [LocationController::class, 'show'])->name('location.show');
+
+        // lockers
         Route::get('/lockers', [LockerController::class, 'staff'])->name('lockers.index');
+        Route::get('/lockers/create', [LockerController::class, 'create'])->name('lockers.create');
+        Route::post('/lockers', [LockerController::class, 'store'])->name('lockers.store');
+        Route::get('/lockers/{locker}/edit', [LockerController::class, 'edit'])->name('lockers.edit');
+        Route::put('/lockers/{locker}', [LockerController::class, 'update'])->name('lockers.update');
+        Route::delete('/lockers/{locker}', [LockerController::class, 'destroy'])->name('lockers.destroy');
+
+        // assignments, access codes, usage history
         Route::get('/assignments', [AssignmentController::class, 'index'])->name('assignments.index');
         Route::post('/assignments/{assignment}/release', [ReleaseController::class, 'store'])->name('assignments.release');
         Route::get('/access-codes', [AccessCodeController::class, 'index'])->name('access-codes.index');
         Route::get('/usage-history', [UsageHistoryController::class, 'staff'])->name('usage-history.index');
+
+        // maintenance
         Route::get('/maintenance', [MaintenanceController::class, 'staff'])->name('maintenance.index');
-        Route::get('/list', [UserController::class, 'userlist'])->name('list.index');
+        Route::get('/maintenance/create', [MaintenanceController::class, 'create'])->name('maintenance.create');
+        Route::post('/maintenance', [MaintenanceController::class, 'storeStaff'])->name('maintenance.store');
+        Route::get('/maintenance/{maintenance}/edit', [MaintenanceController::class, 'edit'])->name('maintenance.edit');
+        Route::put('/maintenance/{maintenance}', [MaintenanceController::class, 'update'])->name('maintenance.update');
+        Route::delete('/maintenance/{maintenance}', [MaintenanceController::class, 'destroy'])->name('maintenance.destroy');
     });
 
     // ---------- USER (role: user, admin) ----------
     Route::middleware('role:user,admin')->prefix('user')->name('user.')->group(function () {
-                Route::get('/dashboard', [DashboardController::class, 'user'])->name('index');
+        Route::get('/dashboard', [DashboardController::class, 'user'])->name('index');
         Route::get('/profile', [UserController::class, 'index'])->name('profile');
-        Route::get('/locations', [LocationController::class, 'location'])->name('location.user');
         Route::get('/locations', [LocationController::class, 'location'])->name('locations.lockers');
 
         Route::get('/lockers', [LockerController::class, 'index'])->name('lockers.index');

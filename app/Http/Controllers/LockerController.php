@@ -10,6 +10,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class LockerController extends Controller
@@ -18,6 +19,8 @@ class LockerController extends Controller
     private const STATUSES = ['available', 'occupied', 'maintenance'];
 
     private const TYPES = ['small', 'medium', 'large'];
+
+    private const MAX_LOCKER_NAME_NUMBER = 10;
 
     // ---------- user: my lockers (/user/lockers) ----------
 
@@ -72,6 +75,33 @@ class LockerController extends Controller
         );
     }
 
+    /**
+     * @return array<int, string>
+     */
+    private function availableLockerNames(?Locker $locker = null): array
+    {
+        $usedNames = Locker::query()
+            ->when($locker !== null, fn ($query) => $query->where('id', '!=', $locker->id))
+            ->pluck('name')
+            ->all();
+        $usedNames = array_fill_keys($usedNames, true);
+        $names = [];
+
+        for ($number = 1; $number <= self::MAX_LOCKER_NAME_NUMBER; $number++) {
+            $name = sprintf('L-%03d', $number);
+
+            if (! isset($usedNames[$name])) {
+                $names[] = $name;
+            }
+        }
+
+        if ($locker !== null && ! in_array($locker->name, $names, true)) {
+            $names[] = $locker->name;
+        }
+
+        return $names;
+    }
+
     // ---------- staff table: /staff/lockers ----------
 
     public function staff(Request $request): View
@@ -79,13 +109,13 @@ class LockerController extends Controller
         $request->validate([
             'q' => ['nullable', 'string', 'max:50'],
             'location' => ['nullable', 'integer'],
-            'status' => ['nullable', 'in:' . implode(',', self::STATUSES)],
+            'status' => ['nullable', 'in:'.implode(',', self::STATUSES)],
         ]);
 
         $lockers = Locker::query()
             ->with('location')
             ->withMax('usages', 'start_time')
-            ->when($request->filled('q'), fn ($q) => $q->where('name', 'ilike', '%' . $request->input('q') . '%'))
+            ->when($request->filled('q'), fn ($q) => $q->where('name', 'ilike', '%'.$request->input('q').'%'))
             ->when($request->filled('location'), fn ($q) => $q->where('location_id', $request->input('location')))
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->input('status')))
             ->orderBy('location_id')
@@ -109,6 +139,7 @@ class LockerController extends Controller
     {
         return view('lockers.create', [
             'locations' => Location::orderBy('name')->get(),
+            'lockerNames' => $this->availableLockerNames(),
             'statuses' => self::STATUSES,
             'types' => self::TYPES,
         ]);
@@ -118,11 +149,12 @@ class LockerController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', Rule::unique('lockers', 'name')],
             'location_id' => ['required', 'exists:locations,id'],
+            'price_per_hour' => ['required', 'numeric', 'min:0'],
             'password' => ['nullable', 'string', 'min:4'],
-            'status' => ['required', 'in:' . implode(',', self::STATUSES)],
-            'type' => ['required', 'in:' . implode(',', self::TYPES)],
+            'status' => ['required', 'in:'.implode(',', self::STATUSES)],
+            'type' => ['required', 'in:'.implode(',', self::TYPES)],
         ]);
 
         // the table has a password column: hash it, or make a random one if left empty
@@ -140,6 +172,7 @@ class LockerController extends Controller
         return view('lockers.edit', [
             'locker' => $locker,
             'locations' => Location::orderBy('name')->get(),
+            'lockerNames' => $this->availableLockerNames($locker),
             'statuses' => self::STATUSES,
             'types' => self::TYPES,
         ]);
@@ -149,11 +182,12 @@ class LockerController extends Controller
     public function update(Request $request, Locker $locker): RedirectResponse
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:255', Rule::unique('lockers', 'name')->ignore($locker->id)],
             'location_id' => ['required', 'exists:locations,id'],
+            'price_per_hour' => ['required', 'numeric', 'min:0'],
             'password' => ['nullable', 'string', 'min:4'],
-            'status' => ['required', 'in:' . implode(',', self::STATUSES)],
-            'type' => ['required', 'in:' . implode(',', self::TYPES)],
+            'status' => ['required', 'in:'.implode(',', self::STATUSES)],
+            'type' => ['required', 'in:'.implode(',', self::TYPES)],
         ]);
 
         // empty password box = keep the old password
@@ -221,7 +255,7 @@ class LockerController extends Controller
         $locker->refresh()->syncLocationCounts();
 
         // Kept in the session so the code page can show it (only the hash is stored in the database)
-        session(['locker_code_' . $usage->id => $code]);
+        session(['locker_code_'.$usage->id => $code]);
 
         return redirect()->route('locker.code', $locker);
     }
@@ -246,7 +280,7 @@ class LockerController extends Controller
         return view('lockers.code', [
             'locker' => $locker,
             'usage' => $usage,
-            'code' => session('locker_code_' . $usage->id),
+            'code' => session('locker_code_'.$usage->id),
         ]);
     }
 
@@ -325,7 +359,7 @@ class LockerController extends Controller
             $locker->update(['status' => 'available', 'user_id' => null]);
         });
 
-        session()->forget('locker_code_' . $usage->id);
+        session()->forget('locker_code_'.$usage->id);
         $locker->refresh()->syncLocationCounts();
 
         return redirect()->route('locker.released', $locker);

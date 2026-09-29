@@ -74,6 +74,7 @@
                         <th class="px-4 py-3 font-semibold w-12">#</th>
                         <th class="px-4 py-3 font-semibold w-1/4">Locker Name</th>
                         <th class="px-4 py-3 font-semibold w-1/5">Location</th>
+                        <th class="px-4 py-3 font-semibold">Price per hour</th>
                         <th class="px-4 py-3 font-semibold w-1/6">Type</th>
                         <th class="px-4 py-3 font-semibold w-1/6">Status</th>
                         <th class="px-4 py-3 font-semibold text-right">Actions</th>
@@ -103,6 +104,7 @@
                                 </div>
                             </td>
                             <td class="px-4 py-3 text-gray-600">{{ $locker->location?->name ?? '-' }}</td>
+                            <td class="px-4 py-3 text-gray-600">${{ number_format((float) $locker->price_per_hour, 2) }}/hour</td>
                             <td class="px-4 py-3 text-gray-600 capitalize">{{ $locker->type }}</td>
                             <td class="px-4 py-3">
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold {{ $badge[0] }}">
@@ -137,7 +139,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-14 text-center text-gray-400">
+                            <td colspan="7" class="px-4 py-14 text-center text-gray-400">
                                 <div class="flex flex-col items-center gap-2">
                                     <svg class="w-8 h-8 text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                                         <rect x="4" y="3" width="16" height="18" rx="2"/>

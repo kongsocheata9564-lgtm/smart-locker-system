@@ -38,8 +38,15 @@
                         <rect x="4" y="3" width="16" height="18" rx="2"/>
                         <path d="M4 12h16M9 7.5h.01M9 16.5h.01"/>
                     </svg>
-                    <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="L-001"
-                           class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('name') border-red-300 @enderror">
+                    <select id="name" name="name"
+                            class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 @error('name') border-red-300 @enderror">
+                        <option value="">Select locker</option>
+                        @foreach ($lockerNames as $lockerName)
+                            <option value="{{ $lockerName }}" @selected(old('name') === $lockerName)>
+                                {{ $lockerName }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
                 @error('name') <p class="text-xs text-red-600 flex items-center gap-1">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 8v4m0 4h.01"/></svg>
@@ -66,6 +73,14 @@
                     </select>
                 </div>
                 @error('location_id') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+            </div>
+
+            {{-- Price per hour --}}
+            <div class="grid gap-1.5">
+                <label for="price_per_hour" class="text-sm font-medium text-gray-700">Price per hour</label>
+                <input type="number" id="price_per_hour" name="price_per_hour" value="{{ old('price_per_hour') }}" min="0" step="0.01" placeholder="0.00"
+                       class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('price_per_hour') border-red-300 @enderror">
+                @error('price_per_hour') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
             </div>
 
             {{-- Type + Status --}}

@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('assignments', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('locker_id')->constrained()->cascadeOnDelete();
+            $table->timestamp('started_at')->nullable();
+            $table->timestamp('released_at')->nullable();
+            $table->string('status')->default('active');
             $table->timestamps();
         });
     }

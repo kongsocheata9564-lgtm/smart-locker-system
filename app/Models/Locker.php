@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Database\Factories\LockerFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +12,7 @@ class Locker extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'location_id', 'password', 'user_id', 'status', 'type'
+        'name', 'location_id', 'price_per_hour', 'password', 'user_id', 'status', 'type',
     ];
 
     protected $hidden = ['password'];

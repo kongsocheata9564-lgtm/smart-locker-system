@@ -110,7 +110,7 @@ class MaintenanceController extends Controller
 
             // CHANGED: solved_at (was solve_at, this caused your error)
             'resolved_this_week' => Maintenance::where('status', 'resolved')
-                ->where('solved_at', '>=', now()->startOfWeek())
+                ->where('solve_at', '>=', now()->startOfWeek())
                 ->count(),
 
             'out_of_service' => Locker::where('status', 'maintenance')->count(),
