@@ -9,31 +9,48 @@ use Illuminate\View\View;
 
 class LocationController extends Controller
 {
+    private const LOCATION_OPTIONS = [
+        [
+            'name' => 'Central Library',
+            'address' => 'Phnom Penh',
+        ],
+        [
+            'name' => 'Olympic Stadium',
+            'address' => 'Phnom Penh',
+        ],
+        [
+            'name' => 'AEON Mall Sen Sok',
+            'address' => 'Phnom Penh',
+        ],
+    ];
+
     public function index(Request $request): View
     {
-        $query = Location::query();
+        $search = $request->string('search')->trim()->toString();
 
-        if ($request->filled('search')) {
-            $search = $request->search;
-
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'ilike', "%{$search}%")
-                    ->orWhere('address', 'ilike', "%{$search}%")
-                    ->orWhere('type', 'ilike', "%{$search}%");
-            });
-        }
-
-        $locations = $query
+        $locations = Location::query()
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('name', 'ilike', "%{$search}%")
+                        ->orWhere('address', 'ilike', "%{$search}%")
+                        ->orWhere('type', 'ilike', "%{$search}%");
+                });
+            })
             ->latest()
             ->paginate(10)
             ->withQueryString();
 
-        return view('staff.locations.index', compact('locations'));
+        return view('staff.locations.index', compact('locations', 'search'));
     }
 
     public function create(): View
     {
-        return view('staff.locations.create');
+        $locationOptions = self::LOCATION_OPTIONS;
+
+        return view(
+            'staff.locations.create',
+            compact('locationOptions')
+        );
     }
 
     public function store(Request $request): RedirectResponse
@@ -58,7 +75,12 @@ class LocationController extends Controller
 
     public function edit(Location $location): View
     {
-        return view('staff.locations.edit', compact('location'));
+        $locationOptions = self::LOCATION_OPTIONS;
+
+        return view(
+            'staff.locations.edit',
+            compact('location', 'locationOptions')
+        );
     }
 
     public function update(
@@ -95,7 +117,7 @@ class LocationController extends Controller
     public function place(): View
     {
         $locations = Location::where('status', 'active')
-            ->latest()
+            ->orderBy('name')
             ->get();
 
         return view('location', compact('locations'));
@@ -104,9 +126,10 @@ class LocationController extends Controller
     public function location(): View
     {
         $locations = Location::where('status', 'active')
-            ->latest()
+            ->orderBy('name')
             ->get();
 
         return view('user.locations.index', compact('locations'));
     }
 }
+
