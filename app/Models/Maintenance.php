@@ -11,7 +11,7 @@ class Maintenance extends Model
         'locker_id',
         'reason',
         'reportByUser_id',
-        'sovleByUser_id',
+        'solveByUser_id',
         'status',
         'report_at',
         'solve_at',
@@ -37,6 +37,6 @@ class Maintenance extends Model
 
     public function solver(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'sovleByUser_id');
+        return $this->belongsTo(User::class, 'solveByUser_id');
     }
 }

@@ -16,13 +16,12 @@
             <h2 class="text-2xl font-bold text-gray-900">Lockers</h2>
             <p class="text-sm text-gray-500 mt-0.5">Manage all lockers across locations.</p>
         </div>
-        <a href="{{ route("$prefix.lockers.create") }}"
-           class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-semibold px-4 py-2.5 rounded-lg shadow-sm transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <x-btn :href="route($prefix . '.lockers.create')">
+            <x-slot:icon>
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
-            </svg>
+            </x-slot:icon>
             Add Locker
-        </a>
+        </x-btn>
     </div>
 
     {{-- Boxed section: success message, filters, table, pagination --}}
@@ -39,46 +38,32 @@
         @endif
 
         {{-- Filters --}}
-        <form method="GET" action="{{ route("$prefix.lockers.index") }}"
+                <form method="GET" action="{{ route("$prefix.lockers.index") }}"
               class="grid gap-3 md:grid-cols-[1fr_180px_160px_auto] bg-gray-50 rounded-xl p-3 border border-gray-100">
 
-            <div class="relative">
-                <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                    <circle cx="11" cy="11" r="7"/>
-                    <path stroke-linecap="round" d="m21 21-4.3-4.3"/>
-                </svg>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search locker name..."
-                       class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-            </div>
+            <x-search-input name="search" placeholder="Search locker or reason..." />
 
-            <select name="location_id" onchange="this.form.submit()"
-                    class="border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">All Locations</option>
+            <x-filter-select name="location_id" placeholder="All Locations">
                 @foreach ($locations as $location)
                     <option value="{{ $location->id }}" @selected(request('location_id') == $location->id)>
                         {{ $location->name }}
                     </option>
                 @endforeach
-            </select>
+            </x-filter-select>
 
-            <select name="status" onchange="this.form.submit()"
-                    class="border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <option value="">All Status</option>
-                @foreach ($statuses as $status)
-                    <option value="{{ $status }}" @selected(request('status') === $status)>
-                        {{ ucfirst(str_replace('_', ' ', $status)) }}
-                    </option>
-                @endforeach
-            </select>
+            <x-filter-select name="status" placeholder="All Status">
+                <option value="pending" @selected(request('status') === 'pending')>Pending</option>
+                <option value="in_progress" @selected(request('status') === 'in_progress')>In progress</option>
+                <option value="resolved" @selected(request('status') === 'resolved')>Resolved</option>
+            </x-filter-select>
 
-            <button type="submit"
-                    class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white text-sm font-semibold px-4 py-2.5 rounded-lg shadow-sm transition-colors">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <x-btn type="submit">
+                <x-slot:icon>
                     <circle cx="11" cy="11" r="7"/>
                     <path stroke-linecap="round" d="m21 21-4.3-4.3"/>
-                </svg>
+                </x-slot:icon>
                 Search
-            </button>
+            </x-btn>
         </form>
 
         {{-- Table --}}
