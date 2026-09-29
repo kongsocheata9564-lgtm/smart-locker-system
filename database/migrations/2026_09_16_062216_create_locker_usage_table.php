@@ -11,13 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('locker_usage', function (Blueprint $table) {
+        Schema::create('locker_usages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('locker_id')->constrained('lockers')->onDelete('cascade');
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('one_time_password');
-            $table->timestamp('start_time')->nullable();
+            $table->foreignId('locker_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('one_time_password')->nullable(); // Hash this!
+            $table->timestamp('start_time');
             $table->timestamp('end_time')->nullable();
+            $table->string('status')->default('active');
             $table->timestamps();
         });
     }
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('locker_usage');
+        Schema::dropIfExists('locker_usages');
     }
 };

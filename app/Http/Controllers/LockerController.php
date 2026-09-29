@@ -3,42 +3,337 @@
 namespace App\Http\Controllers;
 
 use App\Models\Location;
-use App\Models\LockerUsage;
-use App\Services\LockerService;
+use App\Models\Locker;
+use App\Models\UsageHistory;
+use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\View\View;
 
 class LockerController extends Controller
 {
-    // My Locker: only the lockers this user is using right now
-    public function index(): View
+    // 'occupied' (not 'in_use') because assign() and the staff filter both use 'occupied'
+    private const STATUSES = ['available', 'occupied', 'maintenance'];
+
+    private const TYPES = ['small', 'medium', 'large'];
+
+    // ---------- user: my lockers (/user/lockers) ----------
+
+    public function index(Request $request): View
     {
-        $myActive = LockerUsage::with('locker.location')
-            ->where('user_id', auth()->id())
-            ->whereNull('end_time')
-            ->latest('start_time')
+        $user = $request->user();
+
+        abort_unless($user instanceof User, 403);
+
+        // only the lockers this user is using right now
+        $lockers = Locker::query()
+            ->with('location')
+            ->whereBelongsTo($user, 'user')
+            ->latest('updated_at')
             ->get();
 
-        return view('user.lockers.index', compact('myActive'));
+        return view('user.lockers.index', compact('lockers'));
     }
 
-    public function staff(): View
+    // ---------- helpers ----------
+
+    // The open (not yet released) usage of this locker. Staff can see anyone's.
+    private function activeUsage(Locker $locker, User $user): ?UsageHistory
     {
-        return view('staff.lockers.index');
+        return UsageHistory::query()
+            ->where('locker_id', $locker->id)
+            ->whereNull('end_time')
+            ->when(! $user->isStaff(), fn ($q) => $q->where('user_id', $user->id))
+            ->latest('start_time')
+            ->first();
     }
 
-    // Location Details + Locker List (all lockers at one location)
-    public function byLocation(Location $location, LockerService $lockerService): View
+    // 6 characters, without look-alikes such as 0/O and 1/I
+    private function newCode(): string
     {
-        abort_if($location->status !== 'active', 404);
+        $chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        $code = '';
+        for ($i = 0; $i < 6; $i++) {
+            $code .= $chars[random_int(0, strlen($chars) - 1)];
+        }
 
-        $lockers = $lockerService->allByLocation($location->id);
+        return $code;
+    }
 
-        $counts = [
-            'available'   => $lockers->where('status', 'available')->count(),
-            'in_use'      => $lockers->where('status', 'occupied')->count(),
-            'maintenance' => $lockers->where('status', 'maintenance')->count(),
-        ];
+    // after staff create/update/delete, go back to the right list
+    private function backToList(Request $request): RedirectResponse
+    {
+        return redirect()->route(
+            $request->routeIs('staff.*') ? 'staff.lockers.index' : 'user.lockers.index'
+        );
+    }
 
-        return view('user.lockers.by-location', compact('location', 'lockers', 'counts'));
+    // ---------- staff table: /staff/lockers ----------
+
+    public function staff(Request $request): View
+    {
+        $request->validate([
+            'q' => ['nullable', 'string', 'max:50'],
+            'location' => ['nullable', 'integer'],
+            'status' => ['nullable', 'in:' . implode(',', self::STATUSES)],
+        ]);
+
+        $lockers = Locker::query()
+            ->with('location')
+            ->withMax('usages', 'start_time')
+            ->when($request->filled('q'), fn ($q) => $q->where('name', 'ilike', '%' . $request->input('q') . '%'))
+            ->when($request->filled('location'), fn ($q) => $q->where('location_id', $request->input('location')))
+            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->input('status')))
+            ->orderBy('location_id')
+            ->orderBy('name')
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('staff.lockers.index', [
+            'lockers' => $lockers,
+            'locations' => Location::orderBy('name')->get(['id', 'name']),
+            'statuses' => self::STATUSES,
+        ]);
+    }
+
+    // ---------- staff CRUD (cheata) ----------
+
+    // GET /staff/lockers/create
+    // NOTE: view name 'lockers.create' comes from your teammate's code.
+    // If your file is resources/views/staff/lockers/create.blade.php, change it.
+    public function create(): View
+    {
+        return view('lockers.create', [
+            'locations' => Location::orderBy('name')->get(),
+            'statuses' => self::STATUSES,
+            'types' => self::TYPES,
+        ]);
+    }
+
+    // POST /staff/lockers
+    public function store(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'location_id' => ['required', 'exists:locations,id'],
+            'password' => ['nullable', 'string', 'min:4'],
+            'status' => ['required', 'in:' . implode(',', self::STATUSES)],
+            'type' => ['required', 'in:' . implode(',', self::TYPES)],
+        ]);
+
+        // the table has a password column: hash it, or make a random one if left empty
+        $data['password'] = Hash::make($data['password'] ?? $this->newCode());
+
+        $locker = Locker::create($data);
+        $locker->syncLocationCounts();
+
+        return $this->backToList($request)->with('success', 'Locker created successfully.');
+    }
+
+    // GET /staff/lockers/{locker}/edit
+    public function edit(Locker $locker): View
+    {
+        return view('lockers.edit', [
+            'locker' => $locker,
+            'locations' => Location::orderBy('name')->get(),
+            'statuses' => self::STATUSES,
+            'types' => self::TYPES,
+        ]);
+    }
+
+    // PUT /staff/lockers/{locker}
+    public function update(Request $request, Locker $locker): RedirectResponse
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'location_id' => ['required', 'exists:locations,id'],
+            'password' => ['nullable', 'string', 'min:4'],
+            'status' => ['required', 'in:' . implode(',', self::STATUSES)],
+            'type' => ['required', 'in:' . implode(',', self::TYPES)],
+        ]);
+
+        // empty password box = keep the old password
+        if (empty($data['password'])) {
+            unset($data['password']);
+        } else {
+            $data['password'] = Hash::make($data['password']);
+        }
+
+        $locker->update($data);
+        $locker->syncLocationCounts();
+
+        return $this->backToList($request)->with('success', 'Locker updated successfully.');
+    }
+
+    // DELETE /staff/lockers/{locker}
+    public function destroy(Request $request, Locker $locker): RedirectResponse
+    {
+        $locker->delete();
+
+        return $this->backToList($request)->with('success', 'Locker deleted successfully.');
+    }
+
+    // ---------- user flow ----------
+
+    // GET /lockers/{locker}
+    public function show(Locker $locker): View
+    {
+        $locker->load('location');
+
+        return view('lockers.show', compact('locker'));
+    }
+
+    // POST /lockers/{locker}/assign
+    public function assign(Request $request, Locker $locker): RedirectResponse
+    {
+        $code = $this->newCode();
+
+        // lockForUpdate stops two people from taking the same locker at the same moment
+        $usage = DB::transaction(function () use ($request, $locker, $code) {
+            $fresh = Locker::query()->whereKey($locker->id)->lockForUpdate()->first();
+
+            if (! $fresh || $fresh->status !== 'available') {
+                return null;
+            }
+
+            $usage = UsageHistory::create([
+                'locker_id' => $fresh->id,
+                'user_id' => $request->user()->id,
+                'one_time_password' => Hash::make($code),
+                'start_time' => now(),
+                'status' => 'active',
+            ]);
+
+            $fresh->update(['status' => 'occupied', 'user_id' => $request->user()->id]);
+
+            return $usage;
+        });
+
+        if (! $usage) {
+            return redirect()->route('locker.show', $locker)
+                ->with('error', 'Sorry, this locker was just taken. Please choose another one.');
+        }
+
+        $locker->refresh()->syncLocationCounts();
+
+        // Kept in the session so the code page can show it (only the hash is stored in the database)
+        session(['locker_code_' . $usage->id => $code]);
+
+        return redirect()->route('locker.code', $locker);
+    }
+
+    // GET /lockers/{locker}/assigned (not needed any more, sends people to the code page)
+    public function assigned(Locker $locker): RedirectResponse
+    {
+        return redirect()->route('locker.code', $locker);
+    }
+
+    // GET /lockers/{locker}/code
+    public function code(Request $request, Locker $locker): View|RedirectResponse
+    {
+        $usage = $this->activeUsage($locker, $request->user());
+
+        if (! $usage) {
+            return redirect()->route('locker.show', $locker);
+        }
+
+        $locker->load('location');
+
+        return view('lockers.code', [
+            'locker' => $locker,
+            'usage' => $usage,
+            'code' => session('locker_code_' . $usage->id),
+        ]);
+    }
+
+    // GET /lockers/{locker}/close
+    public function close(Request $request, Locker $locker): View|RedirectResponse
+    {
+        if (! $this->activeUsage($locker, $request->user())) {
+            return redirect()->route('locker.show', $locker);
+        }
+
+        return view('lockers.close', compact('locker'));
+    }
+
+    // POST /lockers/{locker}/close
+    public function closeStore(Locker $locker): RedirectResponse
+    {
+        return redirect()->route('locker.inUse', $locker);
+    }
+
+    // GET /lockers/{locker}/in-use
+    public function inUse(Request $request, Locker $locker): View|RedirectResponse
+    {
+        if (! $this->activeUsage($locker, $request->user())) {
+            return redirect()->route('locker.show', $locker);
+        }
+
+        return view('lockers.in-use', compact('locker'));
+    }
+
+    // GET /lockers/{locker}/release
+    public function release(Request $request, Locker $locker): View|RedirectResponse
+    {
+        $usage = $this->activeUsage($locker, $request->user());
+
+        if (! $usage) {
+            return redirect()->route('locker.show', $locker);
+        }
+
+        $locker->load('location');
+
+        return view('lockers.release', [
+            'locker' => $locker,
+            'usage' => $usage,
+            'isStaff' => $request->user()->isStaff(),
+        ]);
+    }
+
+    // GET /lockers/{locker}/release/confirm
+    public function releaseConfirm(Locker $locker): RedirectResponse
+    {
+        return redirect()->route('locker.release', $locker);
+    }
+
+    // POST /lockers/{locker}/release
+    public function releaseStore(Request $request, Locker $locker): RedirectResponse
+    {
+        $user = $request->user();
+        $usage = $this->activeUsage($locker, $user);
+
+        if (! $usage) {
+            return redirect()->route('locker.show', $locker)
+                ->with('error', 'There is no active session for this locker.');
+        }
+
+        // Staff can release without the code; everyone else must type it
+        if (! $user->isStaff()) {
+            $request->validate(['code' => ['required', 'string', 'size:6']]);
+
+            if (! Hash::check(strtoupper(trim($request->input('code'))), $usage->one_time_password ?? '')) {
+                return back()->withErrors(['code' => 'That code is not correct.']);
+            }
+        }
+
+        DB::transaction(function () use ($usage, $locker) {
+            $usage->update(['end_time' => now(), 'status' => 'completed']);
+            $locker->update(['status' => 'available', 'user_id' => null]);
+        });
+
+        session()->forget('locker_code_' . $usage->id);
+        $locker->refresh()->syncLocationCounts();
+
+        return redirect()->route('locker.released', $locker);
+    }
+
+    // GET /lockers/{locker}/released
+    public function released(Locker $locker): View
+    {
+        $locker->load('location');
+
+        return view('lockers.released', compact('locker'));
     }
 }

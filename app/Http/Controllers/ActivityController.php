@@ -8,6 +8,6 @@ class ActivityController extends Controller
 {
     public function place(): View
     {
-        return view('activity');
+        return view('activity.index');
     }
 }

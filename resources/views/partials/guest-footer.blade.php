@@ -2,7 +2,7 @@
      style="padding-bottom: env(safe-area-inset-bottom, 0px);">
 
     <a href="{{ route('home') }}"
-       class="flex flex-col items-center justify-center gap-1 py-2.5 no-underline {{ request()->routeIs('user.dashboard') ? 'text-[#123a6b]' : 'text-gray-400' }}">
+       class="flex flex-col items-center justify-center gap-1 py-2.5 no-underline {{ request()->routeIs('user.index') ? 'text-[#123a6b]' : 'text-gray-400' }}">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
             <path d="M3 9.5 12 3l9 6.5"/>
             <path d="M5 10v10a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V10"/>

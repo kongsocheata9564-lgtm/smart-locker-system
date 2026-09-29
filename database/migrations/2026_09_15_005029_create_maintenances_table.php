@@ -11,19 +11,42 @@ return new class extends Migration
      */
     public function up(): void
     {
-     Schema::create('maintenances', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('locker_id')->constrained('lockers')->cascadeOnDelete();
-    $table->string('reason');
-    $table->unsignedBigInteger('reportByUser_id');
-    $table->foreign('reportByUser_id')->references('id')->on('users')->cascadeOnDelete();
-    $table->unsignedBigInteger('sovleByUser_id')->nullable();
-    $table->foreign('sovleByUser_id')->references('id')->on('users')->nullOnDelete();
-    $table->string('status')->default('pending');
-    $table->timestamp('report_at')->nullable();
-    $table->timestamp('solve_at')->nullable();
-    $table->timestamps();
-});
+        Schema::create('maintenances', function (Blueprint $table) {
+            $table->id();
+
+            // Locker that needs maintenance
+            $table->foreignId('locker_id')
+                ->constrained('lockers')
+                ->onDelete('cascade');
+
+            // Reason for maintenance
+            $table->string('reason');
+
+            // User/staff who reported the maintenance
+            $table->foreignId('reportByUser_id')
+                ->constrained('users')
+                ->onDelete('cascade');
+
+            // User/staff who solved the maintenance
+            $table->foreignId('solveByUser_id')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            // Maintenance status
+            $table->string('status')
+                ->default('pending');
+
+            // When the problem was reported
+            $table->timestamp('report_at')
+                ->nullable();
+
+            // When the problem was solved
+            $table->timestamp('solve_at')
+                ->nullable();
+
+            $table->timestamps();
+        });
     }
 
     /**
@@ -34,3 +57,4 @@ return new class extends Migration
         Schema::dropIfExists('maintenances');
     }
 };
+
