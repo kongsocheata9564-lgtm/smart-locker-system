@@ -1,8 +1,8 @@
 @extends('layouts.app1')
 
-@section('title', 'Add Location | Smart Locker System')
+@section('title', 'Edit Location | Smart Locker System')
 
-@section('page_title', 'Add Location')
+@section('page_title', 'Edit Location')
 
 @section('content')
 
@@ -39,11 +39,11 @@
         <div>
 
             <h2 class="text-2xl font-bold text-gray-900">
-                Add Location
+                Edit Location
             </h2>
 
             <p class="text-sm text-gray-500 mt-0.5">
-                Create a new locker location.
+                Update location details.
             </p>
 
         </div>
@@ -55,11 +55,12 @@
 
         <form
             method="POST"
-            action="{{ route($prefix . '.locations.store') }}"
+            action="{{ route($prefix . '.locations.update', $location) }}"
             class="grid gap-5"
         >
 
             @csrf
+            @method('PUT')
 
             {{-- Location Name --}}
             <div class="grid gap-1.5">
@@ -97,8 +98,7 @@
                         type="text"
                         id="name"
                         name="name"
-                        value="{{ old('name') }}"
-                        placeholder="Central Library"
+                        value="{{ old('name', $location->name) }}"
                         class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('name') border-red-300 @enderror"
                     >
 
@@ -115,6 +115,7 @@
                             viewBox="0 0 24 24"
                         >
                             <circle cx="12" cy="12" r="9"/>
+
                             <path
                                 stroke-linecap="round"
                                 d="M12 8v4m0 4h.01"
@@ -164,8 +165,7 @@
                         type="text"
                         id="address"
                         name="address"
-                        value="{{ old('address') }}"
-                        placeholder="Phnom Penh"
+                        value="{{ old('address', $location->address) }}"
                         class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('address') border-red-300 @enderror"
                     >
 
@@ -198,27 +198,23 @@
                         class="border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 @error('type') border-red-300 @enderror"
                     >
 
-                        <option value="">
-                            Select type
-                        </option>
-
-                        <option value="library" @selected(old('type') === 'library')>
+                        <option value="library" @selected(old('type', $location->type) === 'library')>
                             Library
                         </option>
 
-                        <option value="shopping_mall" @selected(old('type') === 'shopping_mall')>
+                        <option value="shopping_mall" @selected(old('type', $location->type) === 'shopping_mall')>
                             Shopping Mall
                         </option>
 
-                        <option value="sports_center" @selected(old('type') === 'sports_center')>
+                        <option value="sports_center" @selected(old('type', $location->type) === 'sports_center')>
                             Sports Center
                         </option>
 
-                        <option value="building" @selected(old('type') === 'building')>
+                        <option value="building" @selected(old('type', $location->type) === 'building')>
                             Building
                         </option>
 
-                        <option value="public_place" @selected(old('type') === 'public_place')>
+                        <option value="public_place" @selected(old('type', $location->type) === 'public_place')>
                             Public Place
                         </option>
 
@@ -248,11 +244,11 @@
                         class="border border-gray-200 rounded-lg px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 @error('status') border-red-300 @enderror"
                     >
 
-                        <option value="active" @selected(old('status', 'active') === 'active')>
+                        <option value="active" @selected(old('status', $location->status) === 'active')>
                             Active
                         </option>
 
-                        <option value="inactive" @selected(old('status') === 'inactive')>
+                        <option value="inactive" @selected(old('status', $location->status) === 'inactive')>
                             Inactive
                         </option>
 
@@ -304,7 +300,7 @@
                         type="text"
                         id="map"
                         name="map"
-                        value="{{ old('map') }}"
+                        value="{{ old('map', $location->map) }}"
                         placeholder="https://maps.google.com/..."
                         class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('map') border-red-300 @enderror"
                     >
@@ -345,7 +341,7 @@
                         />
                     </svg>
 
-                    Save Location
+                    Update Location
 
                 </button>
 

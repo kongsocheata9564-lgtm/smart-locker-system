@@ -30,7 +30,80 @@ Route::get('/', function () {
 })->name('home');
 Route::get('/select-location', [LocationController::class, 'select'])->name('location.select');
 Route::get('/locations', [LocationController::class, 'place'])->name('location');
-Route::get('/locations/{location}', [LocationController::class, 'show'])->name('location.show');
+Route::get('/profiles', [UserController::class, 'profile'])->name('profile');
+Route::get('/activity',  [ActivityController::class, 'place'])->name('activity');
+Route::get('/register', [RegisterController::class, 'create'])->name('register');
+Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
+Route::get('/login', [LoginController::class, 'create'])->name('login');
+Route::post('/login', [LoginController::class, 'store'])->name('login.store');
+Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+
+Route::prefix('staff')->name('staff.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('staff.dashboard.index');
+    })->name('index');
+    Route::get('/profile', [UserController::class, 'staff'])->name('profile');
+    Route::get('/locations', [LocationController::class, 'index'])->name('locations.index');
+    // Route::get('/lockers', [LockerController::class, 'staff'])->name('lockers.index');
+    Route::get('/assignments', [AssignmentController::class, 'index'])->name('assignments.index');
+    Route::post('/assignments/{assignment}/release', [ReleaseController::class, 'store'])->name('assignments.release');
+    Route::get('/access-codes', [AccessCodeController::class, 'index'])->name('access-codes.index');
+    Route::get('/usage-history', [UsageHistoryController::class, 'staff'])->name('usage-history.index');
+    // Route::get('/maintenance', [MaintenanceController::class, 'staff'])->name('maintenance.index');
+    Route::get('/list', [UserController::class, 'userlist'])->name('list.index');
+
+    // cheata route lockers
+    Route::get('/lockers', [LockerController::class, 'staff'])->name('lockers.index');
+    Route::get('/lockers/create', [LockerController::class, 'create'])->name('lockers.create');
+    Route::post('/lockers', [LockerController::class, 'store'])->name('lockers.store');
+    Route::get('/lockers/{locker}/edit', [LockerController::class, 'edit'])->name('lockers.edit');
+    Route::put('/lockers/{locker}', [LockerController::class, 'update'])->name('lockers.update');
+    Route::delete('/lockers/{locker}', [LockerController::class, 'destroy'])->name('lockers.destroy');
+    // cheata end route lockers
+
+
+
+    // cheata route locations
+    Route::get('/locations', [LocationController::class, 'index'])
+        ->name('locations.index');
+    Route::get('/locations/create', [LocationController::class, 'create'])
+        ->name('locations.create');
+    Route::post('/locations', [LocationController::class, 'store'])
+        ->name('locations.store');
+    Route::get('/locations/{location}/edit', [LocationController::class, 'edit'])
+        ->name('locations.edit');
+    Route::put('/locations/{location}', [LocationController::class, 'update'])
+        ->name('locations.update');
+    Route::delete('/locations/{location}', [LocationController::class, 'destroy'])
+        ->name('locations.destroy');
+    // cheata end route locations
+
+
+
+// Route::prefix('user')->name('user.')->group(function () {
+//     Route::get('/dashboard', function () {
+//         return view('user.dashboard.index');
+//     })->name('index');
+//     Route::get('/profile', [UserController::class, 'index'])->name('profile');
+//     Route::get('/locations', [LocationController::class, 'location'])->name('location.user');
+//     Route::get('/lockers', [LockerController::class, 'index'])->name('lockers.index');
+//     Route::get('/assignments', [AssignmentController::class, 'index'])->name('assignments.index');
+//     Route::post('/assignments/{assignment}/release', [ReleaseController::class, 'store'])->name('assignments.release');
+//     Route::get('/access-codes', [AccessCodeController::class, 'index'])->name('access-codes.index');
+//     Route::get('/usage-history', [UsageHistoryController::class, 'index'])->name('usage-history.index');
+//     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
+//     Route::get('/list', [UserController::class, 'userlist'])->name('list.index');
+// });
+
+    //cheata route maintenance
+    Route::get('/maintenance', [MaintenanceController::class, 'staff'])->name('maintenance.index');
+    Route::get('/maintenance/create', [MaintenanceController::class, 'create'])->name('maintenance.create');
+    Route::post('/maintenance', [MaintenanceController::class, 'storeStaff'])->name('maintenance.store');
+    Route::get('/maintenance/{maintenance}/edit', [MaintenanceController::class, 'edit'])->name('maintenance.edit');
+    Route::put('/maintenance/{maintenance}', [MaintenanceController::class, 'update'])->name('maintenance.update');
+    Route::delete('/maintenance/{maintenance}', [MaintenanceController::class, 'destroy'])->name('maintenance.destroy');
+    //cheata end route maintenance
+});
 
 // ---------- Guest only (login / register pages) ----------
 Route::middleware('guest')->group(function () {

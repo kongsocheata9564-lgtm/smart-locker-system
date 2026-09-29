@@ -10,8 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 #[Fillable([
-    'name', 'slug', 'category', 'address',
-    'price_per_hour', 'total_lockers', 'free_lockers', 'rating', 'image',
+    'name',
+    'address',
+    'type',
+    'status',
+    'map',
 ])]
 class Location extends Model
 {

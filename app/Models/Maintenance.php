@@ -2,13 +2,29 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['locker_id', 'reported_by', 'reason', 'status', 'started_at', 'completed_at', 'notes'])]
 class Maintenance extends Model
 {
+    protected $fillable = [
+        'locker_id',
+        'reason',
+        'reportByUser_id',
+        'solveByUser_id',
+        'status',
+        'report_at',
+        'solve_at',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'report_at' => 'datetime',
+            'solve_at' => 'datetime',
+        ];
+    }
+
     public function locker(): BelongsTo
     {
         return $this->belongsTo(Locker::class);
@@ -16,14 +32,11 @@ class Maintenance extends Model
 
     public function reporter(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'reported_by');
+        return $this->belongsTo(User::class, 'reportByUser_id');
     }
 
-    protected function casts(): array
+    public function solver(): BelongsTo
     {
-        return [
-            'started_at' => 'datetime',
-            'completed_at' => 'datetime',
-        ];
+        return $this->belongsTo(User::class, 'solveByUser_id');
     }
 }

@@ -11,17 +11,42 @@ return new class extends Migration
      */
     public function up(): void
     {
-       Schema::create('maintenances', function (Blueprint $table) {
-    $table->id();
-    $table->foreignId('locker_id')->constrained()->cascadeOnDelete();
-    $table->string('reason');
-    $table->foreignId('reported_by_user_id')->constrained('users');
-    $table->foreignId('solved_by_user_id')->nullable()->constrained('users');
-    $table->string('status')->default('pending');
-    $table->timestamp('reported_at')->useCurrent();
-    $table->timestamp('solved_at')->nullable();
-    $table->timestamps();
-});
+        Schema::create('maintenances', function (Blueprint $table) {
+            $table->id();
+
+            // Locker that needs maintenance
+            $table->foreignId('locker_id')
+                ->constrained('lockers')
+                ->onDelete('cascade');
+
+            // Reason for maintenance
+            $table->string('reason');
+
+            // User/staff who reported the maintenance
+            $table->foreignId('reportByUser_id')
+                ->constrained('users')
+                ->onDelete('cascade');
+
+            // User/staff who solved the maintenance
+            $table->foreignId('solveByUser_id')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
+
+            // Maintenance status
+            $table->string('status')
+                ->default('pending');
+
+            // When the problem was reported
+            $table->timestamp('report_at')
+                ->nullable();
+
+            // When the problem was solved
+            $table->timestamp('solve_at')
+                ->nullable();
+
+            $table->timestamps();
+        });
     }
 
     /**
@@ -32,3 +57,4 @@ return new class extends Migration
         Schema::dropIfExists('maintenances');
     }
 };
+
