@@ -13,7 +13,7 @@
                     <i class="bi bi-box-seam text-xl text-[#1e5fc4]"></i>
                 </div>
                 <div>
-                    <p class="text-lg font-extrabold text-[#123a6b]">{{ $u->locker->locker_name }}</p>
+                    <p class="text-lg font-extrabold text-[#123a6b]">{{ $u->locker->name }}</p>
                     <p class="text-xs text-gray-500">
                         In Use
                         <span class="ml-1 text-[10px] font-bold text-red-500 bg-red-50 px-1.5 py-0.5 rounded-full">In Use</span>
@@ -31,7 +31,7 @@
         </p>
     </div>
 
-    <a href="{{ route('user.assignments.release.confirm', $u) }}"
+    <a href="{{ route('locker.release', $u->locker) }}"
        class="block text-center w-full py-3.5 rounded-full bg-red-500 text-white font-bold text-sm shadow-lg no-underline mb-3">
         <i class="bi bi-unlock"></i> Release Locker
     </a>

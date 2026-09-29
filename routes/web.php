@@ -18,7 +18,6 @@ use App\Models\Locker;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
-use Illuminate\Support\Facades\Route;
 
 
 Route::get('/', function () { return view('index'); })->name('home');                        // [DONE] landing page
@@ -206,6 +205,8 @@ Route::middleware('auth')->group(function () {
         })->name('index');
         Route::get('/profile', [UserController::class, 'index'])->name('profile');
         Route::get('/locations', [LocationController::class, 'location'])->name('location.user');
+        Route::get('/locations', [LocationController::class, 'location'])->name('locations.lockers');
+
         Route::get('/lockers', [LockerController::class, 'index'])->name('lockers.index');
         Route::get('/assignments', [AssignmentController::class, 'index'])->name('assignments.index');
         Route::post('/assignments/{assignment}/release', [ReleaseController::class, 'store'])->name('assignments.release');

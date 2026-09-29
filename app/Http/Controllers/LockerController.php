@@ -28,13 +28,15 @@ class LockerController extends Controller
         abort_unless($user instanceof User, 403);
 
         // only the lockers this user is using right now
-        $lockers = Locker::query()
-            ->with('location')
-            ->whereBelongsTo($user, 'user')
-            ->latest('updated_at')
+        // AFTER
+        $myActive = UsageHistory::query()
+            ->with('locker.location')
+            ->where('user_id', $user->id)
+            ->whereNull('end_time')
+            ->latest('start_time')
             ->get();
 
-        return view('user.lockers.index', compact('lockers'));
+        return view('user.lockers.index', compact('myActive'));
     }
 
     // ---------- helpers ----------
