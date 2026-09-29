@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['user_id', 'locker_id', 'assignment_id', 'started_at', 'ended_at', 'status'])]
+#[Fillable(['user_id', 'locker_id', 'one_time_password', 'start_time', 'end_time', 'status'])]
 class UsageHistory extends Model
 {
+    protected $table = 'locker_usages';
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -19,16 +21,11 @@ class UsageHistory extends Model
         return $this->belongsTo(Locker::class);
     }
 
-    public function assignment(): BelongsTo
-    {
-        return $this->belongsTo(Assignment::class);
-    }
-
     protected function casts(): array
     {
         return [
-            'started_at' => 'datetime',
-            'ended_at' => 'datetime',
+            'start_time' => 'datetime',
+            'end_time' => 'datetime',
         ];
     }
 }

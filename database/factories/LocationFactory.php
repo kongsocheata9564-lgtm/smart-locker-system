@@ -19,10 +19,12 @@ class LocationFactory extends Factory
     {
         return [
             'name' => fake()->company().' Campus',
-            'type' => fake()->randomElement(['building', 'library', 'shopping', 'sports', 'public']),
+            'category' => fake()->randomElement(Location::CATEGORIES),
             'address' => fake()->streetAddress(),
-            'description' => fake()->sentence(),
-            'status' => 'active',
+            'price_per_hour' => fake()->randomFloat(2, 0, 10),
+            'total_lockers' => 0,
+            'free_lockers' => 0,
+            'rating' => fake()->randomFloat(1, 3, 5),
         ];
     }
 }

@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Locker extends Model
 {
-    /** @use HasFactory<LockerFactory> */
     use HasFactory;
 
     protected $fillable = [
@@ -29,6 +28,11 @@ class Locker extends Model
         return [
             'password' => 'hashed',
         ];
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'name';
     }
 
     public function location(): BelongsTo
@@ -54,5 +58,23 @@ class Locker extends Model
     public function maintenances(): HasMany
     {
         return $this->hasMany(Maintenance::class);
+    }
+
+    public function usages(): HasMany
+    {
+        return $this->hasMany(UsageHistory::class);
+    }
+
+    // Keeps the numbers on the location cards ("14 free") in sync with real lockers
+    public function syncLocationCounts(): void
+    {
+        $location = $this->location;
+
+        if ($location) {
+            $location->update([
+                'total_lockers' => $location->lockers()->count(),
+                'free_lockers' => $location->lockers()->where('status', 'available')->count(),
+            ]);
+        }
     }
 }
