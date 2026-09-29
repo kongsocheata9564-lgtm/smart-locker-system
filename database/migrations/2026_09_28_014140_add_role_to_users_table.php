@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->default('user')->after('status');
+            // role already exists on this PC, so only add it if it's missing
+            if (! Schema::hasColumn('users', 'role')) {
+                $table->string('role')->default('user')->after('status');
+            }
         });
     }
 
@@ -22,8 +25,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('role');
+            // only drop it if it's there
+            if (Schema::hasColumn('users', 'role')) {
+                $table->dropColumn('role');
+            }
         });
     }
 };
-

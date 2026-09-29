@@ -26,7 +26,7 @@
                     <option value="">Select a locker</option>
                     @foreach ($lockers as $locker)
                         <option value="{{ $locker->id }}" @selected(old('locker_id') == $locker->id)>
-                            {{ $locker->locker_name }}
+                            {{ $locker->name }}
                         </option>
                     @endforeach
                 </select>

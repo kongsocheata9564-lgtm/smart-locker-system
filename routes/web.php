@@ -21,7 +21,6 @@ use Illuminate\Support\Facades\Route;
 // ---------- Public (anyone can open these, no login needed) ----------
 Route::get('/', function () {
     return view('index', [
-        // Postgres sorts NULL first on DESC, so "nulls last" keeps unrated places at the end
         'popular' => Location::orderByRaw('rating desc nulls last')->orderBy('name')->take(8)->get(),
         'categoryCounts' => Location::selectRaw('category, count(*) as total')->groupBy('category')->pluck('total', 'category'),
         'lockerCount' => Locker::count(),
@@ -30,6 +29,7 @@ Route::get('/', function () {
 })->name('home');
 Route::get('/select-location', [LocationController::class, 'select'])->name('location.select');
 Route::get('/locations', [LocationController::class, 'place'])->name('location');
+Route::get('/locations/{location:slug}', [LocationController::class, 'show'])->name('location.show');
 Route::get('/profiles', [UserController::class, 'profile'])->name('profile');
 Route::get('/activity',  [ActivityController::class, 'place'])->name('activity');
 Route::get('/register', [RegisterController::class, 'create'])->name('register');
@@ -76,24 +76,11 @@ Route::prefix('staff')->name('staff.')->group(function () {
         ->name('locations.update');
     Route::delete('/locations/{location}', [LocationController::class, 'destroy'])
         ->name('locations.destroy');
+    Route::get('/locations/{location:slug}', [LocationController::class, 'show'])->name('location.show');
     // cheata end route locations
 
 
 
-// Route::prefix('user')->name('user.')->group(function () {
-//     Route::get('/dashboard', function () {
-//         return view('user.dashboard.index');
-//     })->name('index');
-//     Route::get('/profile', [UserController::class, 'index'])->name('profile');
-//     Route::get('/locations', [LocationController::class, 'location'])->name('location.user');
-//     Route::get('/lockers', [LockerController::class, 'index'])->name('lockers.index');
-//     Route::get('/assignments', [AssignmentController::class, 'index'])->name('assignments.index');
-//     Route::post('/assignments/{assignment}/release', [ReleaseController::class, 'store'])->name('assignments.release');
-//     Route::get('/access-codes', [AccessCodeController::class, 'index'])->name('access-codes.index');
-//     Route::get('/usage-history', [UsageHistoryController::class, 'index'])->name('usage-history.index');
-//     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
-//     Route::get('/list', [UserController::class, 'userlist'])->name('list.index');
-// });
 
     //cheata route maintenance
     Route::get('/maintenance', [MaintenanceController::class, 'staff'])->name('maintenance.index');

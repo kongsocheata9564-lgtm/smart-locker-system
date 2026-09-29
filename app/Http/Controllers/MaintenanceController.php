@@ -12,17 +12,18 @@ use Illuminate\View\View;
 
 class MaintenanceController extends Controller
 {
+    // User: my own maintenance reports
     public function index(Request $request): View
     {
         $maintenances = Maintenance::with('locker.location')
-            ->where('reportByUser_id', Auth::id())
-            ->latest('report_at')
+            ->where('reported_by_user_id', Auth::id())   // CHANGED (was reportByUser_id)
+            ->latest('reported_at')                      // CHANGED (was report_at)
             ->paginate(10)
             ->withQueryString();
 
         $lockers = Locker::with('location')
             ->where('status', '!=', 'maintenance')
-            ->orderBy('locker_name')
+            ->orderBy('name')
             ->get();
 
         return view(
@@ -31,6 +32,7 @@ class MaintenanceController extends Controller
         );
     }
 
+    // User: report a broken locker
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -40,6 +42,7 @@ class MaintenanceController extends Controller
 
         $locker = Locker::findOrFail($validated['locker_id']);
 
+        // only one open request per locker
         $hasOpenRequest = Maintenance::where('locker_id', $locker->id)
             ->whereIn('status', ['pending', 'in_progress'])
             ->exists();
@@ -53,23 +56,19 @@ class MaintenanceController extends Controller
         Maintenance::create([
             'locker_id' => $locker->id,
             'reason' => $validated['reason'],
-            'reportByUser_id' => Auth::id(),
-            'solveByUser_id' => null,
+            'reported_by_user_id' => Auth::id(),   // CHANGED
+            'solved_by_user_id' => null,           // CHANGED
             'status' => 'pending',
-            'report_at' => now(),
-            'solve_at' => null,
+            'reported_at' => now(),                // CHANGED
+            'solved_at' => null,                   // CHANGED
         ]);
 
-        $locker->update([
-            'status' => 'maintenance',
-        ]);
+        $locker->update(['status' => 'maintenance']);
 
-        return back()->with(
-            'success',
-            'Maintenance issue reported successfully.'
-        );
+        return back()->with('success', 'Maintenance issue reported successfully.');
     }
 
+    // Staff: list with filters + stats
     public function staff(Request $request): View
     {
         $query = Maintenance::with([
@@ -94,73 +93,49 @@ class MaintenanceController extends Controller
             $query->where(function ($q) use ($search) {
                 $q->where('reason', 'ilike', "%{$search}%")
                     ->orWhereHas('locker', function ($lockerQuery) use ($search) {
-                        $lockerQuery->where(
-                            'locker_name',
-                            'ilike',
-                            "%{$search}%"
-                        );
+                        $lockerQuery->where('name', 'ilike', "%{$search}%");
                     });
             });
         }
 
         $maintenances = $query
-            ->latest('report_at')
+            ->latest('reported_at')   // CHANGED (was report_at)
             ->paginate(15)
             ->withQueryString();
 
         $stats = [
-            'pending' => Maintenance::where(
-                'status',
-                'pending'
-            )->count(),
+            'pending' => Maintenance::where('status', 'pending')->count(),
 
-            'in_progress' => Maintenance::where(
-                'status',
-                'in_progress'
-            )->count(),
+            'in_progress' => Maintenance::where('status', 'in_progress')->count(),
 
-            'resolved_this_week' => Maintenance::where(
-                'status',
-                'resolved'
-            )
-                ->where(
-                    'solve_at',
-                    '>=',
-                    now()->startOfWeek()
-                )
+            // CHANGED: solved_at (was solve_at, this caused your error)
+            'resolved_this_week' => Maintenance::where('status', 'resolved')
+                ->where('solved_at', '>=', now()->startOfWeek())
                 ->count(),
 
-            'out_of_service' => Locker::where(
-                'status',
-                'maintenance'
-            )->count(),
+            'out_of_service' => Locker::where('status', 'maintenance')->count(),
         ];
 
         $locations = Location::orderBy('name')->get();
 
         return view(
             'staff.maintenance.index',
-            compact(
-                'maintenances',
-                'stats',
-                'locations'
-            )
+            compact('maintenances', 'stats', 'locations')
         );
     }
 
+    // Staff: show the create form
     public function create(): View
     {
         $lockers = Locker::with('location')
             ->where('status', '!=', 'maintenance')
-            ->orderBy('locker_name')
+            ->orderBy('name')
             ->get();
 
-        return view(
-            'staff.maintenance.create',
-            compact('lockers')
-        );
+        return view('staff.maintenance.create', compact('lockers'));
     }
 
+    // Staff: save a new maintenance report
     public function storeStaff(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -183,22 +158,21 @@ class MaintenanceController extends Controller
         Maintenance::create([
             'locker_id' => $locker->id,
             'reason' => $validated['reason'],
-            'reportByUser_id' => Auth::id(),
-            'solveByUser_id' => null,
+            'reported_by_user_id' => Auth::id(),   // CHANGED
+            'solved_by_user_id' => null,           // CHANGED
             'status' => 'pending',
-            'report_at' => now(),
-            'solve_at' => null,
+            'reported_at' => now(),                // CHANGED
+            'solved_at' => null,                   // CHANGED
         ]);
 
-        $locker->update([
-            'status' => 'maintenance',
-        ]);
+        $locker->update(['status' => 'maintenance']);
 
         return redirect()
             ->route('staff.maintenance.index')
             ->with('success', 'Maintenance issue reported successfully.');
     }
 
+    // Staff: show the edit form
     public function edit(Maintenance $maintenance): View
     {
         $maintenance->load([
@@ -207,60 +181,41 @@ class MaintenanceController extends Controller
             'solver',
         ]);
 
-        return view(
-            'staff.maintenance.edit',
-            compact('maintenance')
-        );
+        return view('staff.maintenance.edit', compact('maintenance'));
     }
 
-    public function update(
-        Request $request,
-        Maintenance $maintenance
-    ): RedirectResponse {
+    // Staff: change the status
+    public function update(Request $request, Maintenance $maintenance): RedirectResponse
+    {
         $validated = $request->validate([
             'status' => 'required|in:pending,in_progress,resolved',
         ]);
 
         $newStatus = $validated['status'];
 
-        if (
-            $newStatus === 'resolved'
-            && $maintenance->status !== 'resolved'
-        ) {
-            $validated['solveByUser_id'] = Auth::id();
-            $validated['solve_at'] = now();
+        // becoming resolved: record who and when, free the locker
+        if ($newStatus === 'resolved' && $maintenance->status !== 'resolved') {
+            $validated['solved_by_user_id'] = Auth::id();   // CHANGED
+            $validated['solved_at'] = now();                // CHANGED
 
-            $hasOtherOpenRequests = Maintenance::where(
-                'locker_id',
-                $maintenance->locker_id
-            )
+            $hasOtherOpenRequests = Maintenance::where('locker_id', $maintenance->locker_id)
                 ->where('id', '!=', $maintenance->id)
                 ->whereIn('status', ['pending', 'in_progress'])
                 ->exists();
 
             if (! $hasOtherOpenRequests) {
-                Locker::where(
-                    'id',
-                    $maintenance->locker_id
-                )->update([
-                    'status' => 'available',
-                ]);
+                Locker::where('id', $maintenance->locker_id)
+                    ->update(['status' => 'available']);
             }
         }
 
-        if (
-            $newStatus !== 'resolved'
-            && $maintenance->status === 'resolved'
-        ) {
-            $validated['solveByUser_id'] = null;
-            $validated['solve_at'] = null;
+        // reopened: clear who/when, put the locker back in maintenance
+        if ($newStatus !== 'resolved' && $maintenance->status === 'resolved') {
+            $validated['solved_by_user_id'] = null;   // CHANGED
+            $validated['solved_at'] = null;           // CHANGED
 
-            Locker::where(
-                'id',
-                $maintenance->locker_id
-            )->update([
-                'status' => 'maintenance',
-            ]);
+            Locker::where('id', $maintenance->locker_id)
+                ->update(['status' => 'maintenance']);
         }
 
         $maintenance->update($validated);
@@ -270,39 +225,26 @@ class MaintenanceController extends Controller
             ->with('success', 'Maintenance request updated successfully.');
     }
 
-    public function destroy(
-        Maintenance $maintenance
-    ): RedirectResponse {
+    // Staff: delete a report
+    public function destroy(Maintenance $maintenance): RedirectResponse
+    {
         $lockerId = $maintenance->locker_id;
 
         $maintenance->delete();
 
-        $hasOpenRequests = Maintenance::where(
-            'locker_id',
-            $lockerId
-        )
+        // no open requests left: the locker can be used again
+        $hasOpenRequests = Maintenance::where('locker_id', $lockerId)
             ->whereIn('status', ['pending', 'in_progress'])
             ->exists();
 
         if (! $hasOpenRequests) {
-            Locker::where(
-                'id',
-                $lockerId
-            )
-                ->where(
-                    'status',
-                    'maintenance'
-                )
-                ->update([
-                    'status' => 'available',
-                ]);
+            Locker::where('id', $lockerId)
+                ->where('status', 'maintenance')
+                ->update(['status' => 'available']);
         }
 
         return redirect()
             ->route('staff.maintenance.index')
-            ->with(
-                'success',
-                'Maintenance request deleted successfully.'
-            );
+            ->with('success', 'Maintenance request deleted successfully.');
     }
 }

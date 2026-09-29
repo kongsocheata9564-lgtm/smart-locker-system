@@ -10,7 +10,7 @@
 
 <div class="grid gap-5">
     <div>
-        <h2 class="text-2xl font-bold text-gray-900">{{ $maintenance->locker->locker_name }}</h2>
+        <h2 class="text-2xl font-bold text-gray-900">{{ $maintenance->locker->name }}</h2>
         <p class="text-sm text-gray-500 mt-0.5">{{ $maintenance->reason }}</p>
     </div>
 

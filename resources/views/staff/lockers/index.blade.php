@@ -99,7 +99,7 @@
                                             <path d="M4 12h16M9 7.5h.01M9 16.5h.01"/>
                                         </svg>
                                     </span>
-                                    <span class="font-semibold text-gray-800">{{ $locker->locker_name }}</span>
+                                    <span class="font-semibold text-gray-800">{{ $locker->name }}</span>
                                 </div>
                             </td>
                             <td class="px-4 py-3 text-gray-600">{{ $locker->location?->name ?? '-' }}</td>

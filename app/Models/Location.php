@@ -9,12 +9,22 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
+// every column that can be saved with Location::create() / ->update()
+// (added slug, category, price_per_hour, total_lockers, free_lockers, rating, image;
+//  removed the duplicate 'status')
 #[Fillable([
     'name',
+    'slug',
+    'category',
     'address',
     'type',
     'status',
     'map',
+    'price_per_hour',
+    'total_lockers',
+    'free_lockers',
+    'rating',
+    'image',
 ])]
 class Location extends Model
 {
@@ -28,6 +38,7 @@ class Location extends Model
         'Building',
     ];
 
+    // URLs use the slug instead of the id (e.g. /locations/abc-mall)
     public function getRouteKeyName(): string
     {
         return 'slug';
@@ -35,6 +46,7 @@ class Location extends Model
 
     protected static function booted(): void
     {
+        // safety net: if nobody set a slug, build one from the name
         static::saving(function (Location $location) {
             if (empty($location->slug)) {
                 $location->slug = Str::slug($location->name);

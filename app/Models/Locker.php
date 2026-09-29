@@ -13,12 +13,7 @@ class Locker extends Model
     use HasFactory;
 
     protected $fillable = [
-        'locker_name',
-        'location_id',
-        'password',
-        'user_id',
-        'status',
-        'type',
+        'name', 'location_id', 'password', 'user_id', 'status', 'type'
     ];
 
     protected $hidden = ['password'];

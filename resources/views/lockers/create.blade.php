@@ -32,16 +32,16 @@
 
             {{-- Locker Name --}}
             <div class="grid gap-1.5">
-                <label for="locker_name" class="text-sm font-medium text-gray-700">Locker Name</label>
+                <label for="name" class="text-sm font-medium text-gray-700">Locker Name</label>
                 <div class="relative">
                     <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                         <rect x="4" y="3" width="16" height="18" rx="2"/>
                         <path d="M4 12h16M9 7.5h.01M9 16.5h.01"/>
                     </svg>
-                    <input type="text" id="locker_name" name="locker_name" value="{{ old('locker_name') }}" placeholder="L-001"
-                           class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('locker_name') border-red-300 @enderror">
+                    <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="L-001"
+                           class="w-full border border-gray-200 rounded-lg pl-9 pr-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent @error('name') border-red-300 @enderror">
                 </div>
-                @error('locker_name') <p class="text-xs text-red-600 flex items-center gap-1">
+                @error('name') <p class="text-xs text-red-600 flex items-center gap-1">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 8v4m0 4h.01"/></svg>
                     {{ $message }}
                 </p> @enderror
