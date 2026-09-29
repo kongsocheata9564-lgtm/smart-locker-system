@@ -22,12 +22,11 @@ class LockerRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'location_id' => ['required', 'exists:locations,id'],
-            'locker_number' => ['required', 'string', 'max:255'],
-            'size' => ['required', 'string', 'max:255'],
-            'status' => ['required', 'in:available,occupied,maintenance,unavailable'],
-            'description' => ['nullable', 'string'],
-        ];
+       return [
+    'locker_name' => ['required', 'string', 'max:255'],
+    'location_id' => ['required', 'exists:locations,id'],
+    'type'        => ['required', 'string', 'max:255'],
+    'status'      => ['required', 'in:available,occupied,maintenance,unavailable'],
+];
     }
 }

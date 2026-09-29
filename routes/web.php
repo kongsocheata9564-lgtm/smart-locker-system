@@ -18,6 +18,17 @@ use App\Models\Locker;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
+use Illuminate\Support\Facades\Route;
+
+
+Route::get('/', function () { return view('index'); })->name('home');                        // [DONE] landing page
+Route::get('/locations', [LocationController::class, 'place'])->name('location');            // [DONE]
+Route::get('/profiles', [UserController::class, 'profile'])->name('profile');                // [FRIEND]
+Route::get('/activity', [ActivityController::class, 'place'])->name('activity');             // [DONE]
+
+
+
+
 // ---------- Public (anyone can open these, no login needed) ----------
 Route::get('/', function () {
     return view('index', [
@@ -38,6 +49,9 @@ Route::get('/login', [LoginController::class, 'create'])->name('login');
 Route::post('/login', [LoginController::class, 'store'])->name('login.store');
 Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 
+// =====================================================================
+// STAFF (desktop layout: layouts.app / layouts.app1)
+// =====================================================================
 Route::prefix('staff')->name('staff.')->group(function () {
     Route::get('/dashboard', function () {
         return view('staff.dashboard.index');

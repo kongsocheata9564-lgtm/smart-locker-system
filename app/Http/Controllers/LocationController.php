@@ -107,8 +107,7 @@ class LocationController extends Controller
     }
 
     // Public: list of all active locations
-    // CHANGED BACK: send the models as they are.
-    // locations/index.blade.php converts them to arrays by itself.
+    // Sends the models as they are; locations/index.blade.php converts them itself.
     public function place(): View
     {
         $locations = Location::where('status', 'active')
