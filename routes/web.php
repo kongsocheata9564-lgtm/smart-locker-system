@@ -1,5 +1,5 @@
 <?php
-
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AccessCodeController;
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\Admin\UserRoleController;
@@ -200,9 +200,7 @@ Route::middleware('auth')->group(function () {
 
     // ---------- USER (role: user, admin) ----------
     Route::middleware('role:user,admin')->prefix('user')->name('user.')->group(function () {
-        Route::get('/dashboard', function () {
-            return view('user.dashboard.index');
-        })->name('index');
+                Route::get('/dashboard', [DashboardController::class, 'user'])->name('index');
         Route::get('/profile', [UserController::class, 'index'])->name('profile');
         Route::get('/locations', [LocationController::class, 'location'])->name('location.user');
         Route::get('/locations', [LocationController::class, 'location'])->name('locations.lockers');

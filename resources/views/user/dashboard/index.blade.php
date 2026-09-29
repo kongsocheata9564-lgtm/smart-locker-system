@@ -27,8 +27,10 @@
                     </div>
                     <p class="text-sm text-gray-500">Total Bookings</p>
                 </div>
-                <p class="text-2xl font-semibold text-gray-800">3</p>
-                <p class="text-xs text-green-500 mt-1">+1 this week</p>
+                <p class="text-2xl font-semibold text-gray-800">{{ $totalBookings }}</p>
+                <p class="text-xs {{ $weekBookings ? 'text-green-500' : 'text-gray-400' }} mt-1">
+                    {{ $weekBookings ? '+' . $weekBookings . ' this week' : 'None this week' }}
+                </p>
             </div>
 
             <div class="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
@@ -41,7 +43,7 @@
                     </div>
                     <p class="text-sm text-gray-500">Active Lockers</p>
                 </div>
-                <p class="text-2xl font-semibold text-gray-800">1</p>
+                <p class="text-2xl font-semibold text-gray-800">{{ $activeLockers }}</p>
                 <p class="text-xs text-gray-400 mt-1">Currently using</p>
             </div>
 
@@ -54,7 +56,7 @@
                     </div>
                     <p class="text-sm text-gray-500">Available Lockers</p>
                 </div>
-                <p class="text-2xl font-semibold text-gray-800">12</p>
+                <p class="text-2xl font-semibold text-gray-800">{{ $available }}</p>
                 <p class="text-xs text-gray-400 mt-1">Ready to use</p>
             </div>
 
@@ -78,33 +80,31 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-50">
-                    <tr>
-                        <td class="px-4 py-3 text-gray-600">Booked</td>
-                        <td class="px-4 py-3 font-medium text-gray-700">A12</td>
-                        <td class="px-4 py-3 text-gray-500">Library</td>
-                        <td class="px-4 py-3 text-gray-500">Sep 28, 2026 09:00 AM</td>
-                        <td class="px-4 py-3">
-                            <span class="inline-flex items-center bg-green-50 text-green-500 text-xs font-medium px-2.5 py-1 rounded-full">Active</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="px-4 py-3 text-gray-600">Released</td>
-                        <td class="px-4 py-3 font-medium text-gray-700">B05</td>
-                        <td class="px-4 py-3 text-gray-500">Sports Center</td>
-                        <td class="px-4 py-3 text-gray-500">Sep 27, 2026 02:15 PM</td>
-                        <td class="px-4 py-3">
-                            <span class="inline-flex items-center bg-gray-100 text-gray-500 text-xs font-medium px-2.5 py-1 rounded-full">Completed</span>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="px-4 py-3 text-gray-600">Booked</td>
-                        <td class="px-4 py-3 font-medium text-gray-700">C14</td>
-                        <td class="px-4 py-3 text-gray-500">Shopping Mall</td>
-                        <td class="px-4 py-3 text-gray-500">Sep 26, 2026 10:30 AM</td>
-                        <td class="px-4 py-3">
-                            <span class="inline-flex items-center bg-gray-100 text-gray-500 text-xs font-medium px-2.5 py-1 rounded-full">Completed</span>
-                        </td>
-                    </tr>
+                    @forelse ($recent as $item)
+                        @php
+                            $released = !is_null($item->released_at);
+                            $time = $released ? $item->released_at : $item->created_at;
+                            $isActive = $item->status === 'active';
+                        @endphp
+                        <tr>
+                            <td class="px-4 py-3 text-gray-600">{{ $released ? 'Released' : 'Booked' }}</td>
+                            <td class="px-4 py-3 font-medium text-gray-700">{{ $item->locker->name ?? '—' }}</td>
+                            <td class="px-4 py-3 text-gray-500">{{ $item->locker->location->name ?? '—' }}</td>
+                            <td class="px-4 py-3 text-gray-500">{{ $time->format('M d, Y h:i A') }}</td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full {{ $isActive ? 'bg-green-50 text-green-500' : 'bg-gray-100 text-gray-500' }}">
+                                    {{ $isActive ? 'Active' : 'Completed' }}
+                                </span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-4 py-8 text-center text-gray-400">
+                                No activity yet.
+                                <a href="{{ route('location') }}" class="text-blue-500 hover:underline">Find a locker</a>
+                            </td>
+                        </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>

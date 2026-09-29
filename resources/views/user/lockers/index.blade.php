@@ -42,7 +42,7 @@
         </div>
         <h2 class="text-base font-bold text-[#123a6b]">No locker in use</h2>
         <p class="text-xs text-gray-500 mt-1 mb-5">Find a location and pick an available locker.</p>
-        <a href="{{ route('user.location.user') }}"
+        <a href="{{ route('user.locations.lockers') }}"
            class="inline-block px-8 py-3 rounded-full bg-[#1e5fc4] text-white text-sm font-bold no-underline">
             Find a Locker
         </a>
