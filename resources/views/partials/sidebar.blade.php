@@ -99,8 +99,19 @@
     <!-- Divider -->
     <div class="border-b border-gray-200 mb-2"></div>
 
-    <!-- Profile + Logout -->
+    <!-- Bottom: View website + Profile + Logout -->
     <div class="px-2 py-2">
+
+        <!-- NEW: go to the public website to check what users see.
+             Change route('location') to any public route you want, e.g. route('home'). -->
+        <a href="{{ route('location') }}"
+           class="flex items-center gap-3 mb-2 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 no-underline hover:bg-gray-50 transition">
+            <svg class="w-5 h-5 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+            </svg>
+            View website
+        </a>
+
         <a href="{{ route('staff.profile') }}"
            class="flex items-center gap-3 mb-2 no-underline rounded-xl px-1 py-1 {{ request()->routeIs('staff.profile') ? 'bg-blue-50' : '' }}">
             <div class="flex items-center gap-3">

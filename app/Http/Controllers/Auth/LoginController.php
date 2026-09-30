@@ -10,11 +10,13 @@ use Illuminate\View\View;
 
 class LoginController extends Controller
 {
+    // GET /login: show the login form
     public function create(): View
     {
         return view('auth.login');
     }
 
+    // POST /login: check the credentials and send the person to the right page
     public function store(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
@@ -27,6 +29,7 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $user = Auth::user();
 
+            // block accounts that are not active
             if ($user->status !== 'active') {
                 Auth::logout();
                 $request->session()->invalidate();
@@ -37,9 +40,20 @@ class LoginController extends Controller
                 ])->onlyInput('email');
             }
 
+            // new session id, but the saved page (url.intended) is kept
             $request->session()->regenerate();
 
-            return redirect()->route($user->dashboardRoute());
+            // staff/admin always go straight to their dashboard (ignore the saved page)
+            if ($user->isStaff()) {
+                // forget the saved page so it doesn't send them somewhere later
+                $request->session()->forget('url.intended');
+
+                return redirect()->route($user->dashboardRoute());
+            }
+
+            // normal users go back to the page they clicked before login (e.g. the locker);
+            // if there is none (they opened /login directly), use their dashboard
+            return redirect()->intended(route($user->dashboardRoute()));
         }
 
         return back()->withErrors([
@@ -47,6 +61,7 @@ class LoginController extends Controller
         ])->onlyInput('email');
     }
 
+    // POST /logout: log out and go to the login page
     public function destroy(Request $request): RedirectResponse
     {
         Auth::logout();

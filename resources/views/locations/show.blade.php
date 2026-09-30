@@ -103,10 +103,21 @@
                         <p class="text-[15px] font-bold text-gray-900 mb-4">Pricing</p>
                         <div class="grid gap-3">
                             @foreach ($sizeOptions as $size => $label)
+                                {{-- FIX 1: price now comes from the lockers of this size (cheapest one), not from $location --}}
+                                @php
+                                    $sizePrice = $lockers->where('type', $size)->min('price_per_hour');
+                                @endphp
                                 <div class="flex items-center gap-3">
                                     <span class="w-9 h-9 rounded-xl bg-[#eaf1fb] text-[#17488a] font-extrabold text-[13px] flex items-center justify-center">{{ strtoupper(substr($size, 0, 1)) }}</span>
                                     <p class="flex-1 text-[13.5px] font-bold text-gray-900">{{ $label }}</p>
-                                    <p class="text-[15px] font-extrabold text-[#0d2a52]">${{ number_format((float) $location->price_per_hour, 2) }}<span class="text-[11px] font-medium text-gray-500">/hr</span></p>
+                                    {{-- if there is no locker of this size at this location, show a dash instead of $0.00 --}}
+                                    <p class="text-[15px] font-extrabold text-[#0d2a52]">
+                                        @if ($sizePrice !== null)
+                                            ${{ number_format((float) $sizePrice, 2) }}<span class="text-[11px] font-medium text-gray-500">/hr</span>
+                                        @else
+                                            &mdash;
+                                        @endif
+                                    </p>
                                 </div>
                             @endforeach
                         </div>
@@ -158,7 +169,8 @@
                                 <p class="text-[14.5px] font-bold text-gray-800">{{ $locker->name }}</p>
                                 <span class="flex items-center gap-1.5 text-[12px] font-semibold {{ $style['text'] }}"><span class="w-1.5 h-1.5 rounded-full {{ $style['dot'] }}"></span>{{ $style['label'] }}</span>
                                 @if ($status === 'available')
-                                    <p class="text-[12px] text-gray-500">${{ number_format((float) $location->price_per_hour, 2) }}<span class="text-gray-400">/hr</span></p>
+                                    {{-- FIX 2: use this locker's own price ($locker), not the location's --}}
+                                    <p class="text-[12px] text-gray-500">${{ number_format((float) $locker->price_per_hour, 2) }}<span class="text-gray-400">/hr</span></p>
                                 @endif
                             </a>
                         @empty
